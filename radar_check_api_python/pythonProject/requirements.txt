@@ -1,0 +1,6 @@
+Flask
+Flask-CORS
+pandas
+tqdm
+python-dotenv
+flask-swagger-ui
