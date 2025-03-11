@@ -1,15 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Blueprint
 import pandas as pd
 import numpy as np
 from itertools import combinations
 import random
 import json
-
 from flask_cors import CORS
 
-app = Flask(__name__)
-CORS(app)
-
+bp = Blueprint('api2', __name__)
 
 # Fonction pour vérifier si les différences sont constantes
 def has_constant_difference(values):
@@ -380,7 +377,7 @@ def analyze_data(df, respect_columns, min_sequence_length=3, max_results_per_dat
     return results
 
 
-@app.route('/analyze', methods=['POST'])
+@bp.route('/analyze', methods=['POST'])
 def analyze():
     """
     Endpoint API pour l'analyse des données
@@ -501,7 +498,3 @@ def analyze():
             "error": str(e),
             "traceback": traceback.format_exc()
         }), 500
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

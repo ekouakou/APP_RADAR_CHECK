@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app)  # Permet les requêtes cross-origin pour l'intégration avec React
 
 # Configuration pour stocker temporairement les fichiers téléchargés
-UPLOAD_FOLDER = Path('./uploads')
+UPLOAD_FOLDER = Path('archive/uploads')
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 app.config['UPLOAD_FOLDER'] = str(UPLOAD_FOLDER)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limite de 16MB pour les fichiers téléchargés

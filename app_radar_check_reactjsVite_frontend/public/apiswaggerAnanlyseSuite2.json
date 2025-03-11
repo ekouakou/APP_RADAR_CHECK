@@ -1,0 +1,420 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API d'Analyse de Séquences Numériques",
+    "description": "API pour analyser des données numériques à la recherche de séquences arithmétiques constantes ou variables. Prend en charge les requêtes au format multipart/form-data ou application/json.",
+    "version": "1.0.0",
+    "contact": {
+      "email": "contact@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000",
+      "description": "Serveur de développement local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "analyse",
+      "description": "Analyse de séquences numériques"
+    }
+  ],
+  "paths": {
+    "/analyze": {
+      "post": {
+        "tags": ["analyse"],
+        "summary": "Analyser un fichier CSV pour trouver des séquences arithmétiques",
+        "description": "Téléchargez un fichier CSV contenant des données numériques pour analyser les séquences arithmétiques. L'API recherche des suites à différence constante ou variable selon les paramètres spécifiés. Prend en charge deux formats de requête : multipart/form-data pour l'upload de fichier ou application/json pour les données déjà chargées.",
+        "operationId": "analyzeData",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV avec colonnes Date, Type de Tirage et colonnes numériques"
+                  },
+                  "respect_columns": {
+                    "type": "boolean",
+                    "description": "Si true, recherche uniquement dans les mêmes colonnes; si false, recherche à travers différentes colonnes",
+                    "default": true
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Numéro de page pour la pagination des résultats",
+                    "default": 1,
+                    "minimum": 1
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "description": "Nombre de résultats par page",
+                    "default": 50,
+                    "minimum": 1,
+                    "maximum": 1000
+                  },
+                  "min_sequence_length": {
+                    "type": "integer",
+                    "description": "Longueur minimale des séquences à rechercher",
+                    "default": 3,
+                    "minimum": 3,
+                    "maximum": 10
+                  },
+                  "max_results_per_date": {
+                    "type": "integer",
+                    "description": "Nombre maximum de résultats à renvoyer par date",
+                    "default": 500,
+                    "minimum": 1,
+                    "maximum": 2000
+                  },
+                  "search_depth": {
+                    "type": "string",
+                    "description": "Profondeur de recherche: shallow (superficielle), medium (moyenne), deep (profonde)",
+                    "enum": ["shallow", "medium", "deep"],
+                    "default": "medium"
+                  },
+                  "difference_type": {
+                    "type": "string",
+                    "description": "Type de différence à rechercher: constant (constante), variable (progression arithmétique), any (les deux)",
+                    "enum": ["constant", "variable", "any"],
+                    "default": "constant"
+                  },
+                  "respect_order": {
+                    "type": "boolean",
+                    "description": "Si true, respecte l'ordre d'apparition des numéros dans le jeu",
+                    "default": true
+                  },
+                  "filter_dates": {
+                    "type": "string",
+                    "description": "Dates à filtrer au format JSON array ou chaîne séparée par des virgules",
+                    "example": "[\"2023-01-01\", \"2023-01-02\"] ou 2023-01-01,2023-01-02"
+                  },
+                  "filter_tirage_types": {
+                    "type": "string",
+                    "description": "Types de tirage à filtrer au format JSON array ou chaîne séparée par des virgules",
+                    "example": "[\"Type1\", \"Type2\"] ou Type1,Type2"
+                  }
+                },
+                "required": ["file"]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "description": "Données CSV déjà chargées et formatées en tableau d'objets",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "Date": {
+                          "type": "string",
+                          "description": "Date du tirage",
+                          "example": "2023-01-01"
+                        },
+                        "Type de Tirage": {
+                          "type": "string",
+                          "description": "Type de tirage",
+                          "example": "Standard"
+                        }
+                      },
+                      "additionalProperties": {
+                        "description": "Colonnes numériques dynamiques (Num1, Num2, etc.)"
+                      }
+                    }
+                  },
+                  "respect_columns": {
+                    "type": "boolean",
+                    "description": "Si true, recherche uniquement dans les mêmes colonnes; si false, recherche à travers différentes colonnes",
+                    "default": true
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Numéro de page pour la pagination des résultats",
+                    "default": 1,
+                    "minimum": 1
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "description": "Nombre de résultats par page",
+                    "default": 50,
+                    "minimum": 1,
+                    "maximum": 1000
+                  },
+                  "min_sequence_length": {
+                    "type": "integer",
+                    "description": "Longueur minimale des séquences à rechercher",
+                    "default": 3,
+                    "minimum": 3,
+                    "maximum": 10
+                  },
+                  "max_results_per_date": {
+                    "type": "integer",
+                    "description": "Nombre maximum de résultats à renvoyer par date",
+                    "default": 500,
+                    "minimum": 1,
+                    "maximum": 2000
+                  },
+                  "search_depth": {
+                    "type": "string",
+                    "description": "Profondeur de recherche: shallow (superficielle), medium (moyenne), deep (profonde)",
+                    "enum": ["shallow", "medium", "deep"],
+                    "default": "medium"
+                  },
+                  "difference_type": {
+                    "type": "string",
+                    "description": "Type de différence à rechercher: constant (constante), variable (progression arithmétique), any (les deux)",
+                    "enum": ["constant", "variable", "any"],
+                    "default": "constant"
+                  },
+                  "respect_order": {
+                    "type": "boolean",
+                    "description": "Si true, respecte l'ordre d'apparition des numéros dans le jeu",
+                    "default": true
+                  },
+                  "filter_dates": {
+                    "type": "array",
+                    "description": "Dates à filtrer",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": ["2023-01-01", "2023-01-02"]
+                  },
+                  "filter_tirage_types": {
+                    "type": "array",
+                    "description": "Types de tirage à filtrer",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": ["Type1", "Type2"]
+                  }
+                },
+                "required": ["data"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Analyse réussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "config": {
+                      "type": "object",
+                      "properties": {
+                        "respect_columns": {
+                          "type": "boolean"
+                        },
+                        "search_depth": {
+                          "type": "string",
+                          "enum": ["shallow", "medium", "deep"]
+                        },
+                        "min_sequence_length": {
+                          "type": "integer"
+                        },
+                        "difference_type": {
+                          "type": "string",
+                          "enum": ["constant", "variable", "any"]
+                        },
+                        "filter_dates": {
+                          "oneOf": [
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            {
+                              "type": "string",
+                              "enum": ["all"]
+                            }
+                          ]
+                        },
+                        "filter_tirage_types": {
+                          "oneOf": [
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            {
+                              "type": "string",
+                              "enum": ["all"]
+                            }
+                          ]
+                        },
+                        "respect_order": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total_results": {
+                          "type": "integer",
+                          "description": "Nombre total de résultats trouvés"
+                        },
+                        "page": {
+                          "type": "integer",
+                          "description": "Page actuelle"
+                        },
+                        "per_page": {
+                          "type": "integer",
+                          "description": "Nombre de résultats par page"
+                        },
+                        "total_pages": {
+                          "type": "integer",
+                          "description": "Nombre total de pages"
+                        }
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SequenceResult"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Paramètres invalides",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Description de l'erreur"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Message d'erreur"
+                    },
+                    "traceback": {
+                      "type": "string",
+                      "description": "Détails techniques de l'erreur"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalysisConfig": {
+        "type": "object",
+        "properties": {
+          "respect_columns": {
+            "type": "boolean",
+            "description": "Si true, recherche uniquement dans les mêmes colonnes"
+          },
+          "search_depth": {
+            "type": "string",
+            "enum": ["shallow", "medium", "deep"],
+            "description": "Profondeur de recherche"
+          },
+          "min_sequence_length": {
+            "type": "integer",
+            "description": "Longueur minimale des séquences"
+          },
+          "difference_type": {
+            "type": "string",
+            "enum": ["constant", "variable", "any"],
+            "description": "Type de différence à rechercher"
+          },
+          "respect_order": {
+            "type": "boolean",
+            "description": "Si true, respecte l'ordre d'apparition des numéros"
+          }
+        }
+      },
+      "SequenceResult": {
+        "type": "object",
+        "properties": {
+          "Colonne": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Colonnes contenant la séquence"
+          },
+          "Dates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Dates d'apparition de la séquence"
+          },
+          "Differences": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Différences entre les valeurs consécutives"
+          },
+          "Type_Sequence": {
+            "type": "string",
+            "enum": ["constante", "variable"],
+            "description": "Type de séquence: constante ou variable"
+          },
+          "Progression_Difference": {
+            "type": "integer",
+            "description": "Différence entre les différences consécutives (pour type variable uniquement)"
+          },
+          "Longueur": {
+            "type": "integer",
+            "description": "Nombre d'éléments dans la séquence"
+          },
+          "Types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Types de tirage pour chaque élément de la séquence"
+          },
+          "Valeurs": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Valeurs numériques de la séquence"
+          },
+          "Respect_Ordre": {
+            "type": "boolean",
+            "description": "Indique si l'ordre d'apparition a été respecté"
+          }
+        }
+      }
+    }
+  }
+}

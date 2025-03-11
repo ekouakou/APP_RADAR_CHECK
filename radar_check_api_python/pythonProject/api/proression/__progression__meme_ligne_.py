@@ -458,7 +458,7 @@ def trouver_sequences_sans_position(
 
 if __name__ == '__main__':
     # Exemple d'utilisation
-    csv_file = '../formatted_lottery_results.csv'  # Remplacez par le chemin de votre fichier CSV
+    csv_file = '../uploads/formatted_lottery_results.csv'  # Remplacez par le chemin de votre fichier CSV
     output_file = 'resultats.json'  # Nom du fichier de sortie
 
     # Paramètres d'analyse

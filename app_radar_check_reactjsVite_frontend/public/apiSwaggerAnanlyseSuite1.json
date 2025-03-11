@@ -1,0 +1,321 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API ",
+    "version": "1.0.0",
+    "contact": {
+      "email": "contact@example.com"
+    },
+    "description": "API pour l'analyse de données de loterie"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000",
+      "description": "Serveur local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "lottery",
+      "description": "Opérations liées à l'analyse de loterie"
+    }
+  ],
+  "paths": {
+    "/api/lottery/health": {
+      "get": {
+        "tags": ["lottery"],
+        "summary": "Vérifier l'état de l'API",
+        "description": "Vérifie que l'API est opérationnelle",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "Succès - L'API est opérationnelle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lottery/analyze": {
+      "post": {
+        "tags": ["lottery"],
+        "summary": "Analyser les données de loterie",
+        "description": "Analyse les suites arithmétiques dans un fichier CSV de données de loterie",
+        "operationId": "analyzeLottery",
+        "requestBody": {
+          "description": "Paramètres d'analyse",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Succès - Résultats de l'analyse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Paramètres invalides",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fichier non trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "OK"
+          },
+          "message": {
+            "type": "string",
+            "example": "L'API d'analyse de loterie est opérationnelle"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Le chemin du fichier CSV est requis"
+          }
+        }
+      },
+      "AnalyzeRequest": {
+        "type": "object",
+        "required": ["csv_path"],
+        "properties": {
+          "csv_path": {
+            "type": "string",
+            "description": "Chemin vers le fichier CSV à analyser",
+            "example": "/Users/imac/Documents/NKM-TECHNOLOGY/APP_RADAR_CHECK/radar_check_api_python/pythonProject/api/uploads/formatted_lottery_results.csv"
+          },
+          "sens_lecture": {
+            "type": "boolean",
+            "description": "Direction de lecture du fichier (true = chronologique, false = antichronologique)",
+            "default": true
+          },
+          "colonnes": {
+            "type": "string",
+            "description": "Colonnes à analyser (\"num\", \"machine\" ou \"tous\")",
+            "enum": ["num", "machine", "tous"],
+            "default": "num"
+          },
+          "respecter_positions": {
+            "type": "boolean",
+            "description": "Respecter l'ordre des positions pour former des suites",
+            "default": true
+          },
+          "types_tirage": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Liste des types de tirage à considérer",
+            "example": ["Loto", "EuroMillions"],
+            "default": null
+          },
+          "date_debut": {
+            "type": "string",
+            "description": "Date de début au format \"DD/MM/YYYY\"",
+            "example": "01/01/2020",
+            "default": null
+          },
+          "date_fin": {
+            "type": "string",
+            "description": "Date de fin au format \"DD/MM/YYYY\"",
+            "example": "31/12/2020",
+            "default": null
+          },
+          "direction": {
+            "type": "string",
+            "description": "Direction d'analyse (\"horizontal\", \"vertical\" ou \"les_deux\")",
+            "enum": ["horizontal", "vertical", "les_deux"],
+            "default": "horizontal"
+          },
+          "difference_constante": {
+            "type": "boolean",
+            "description": "Cherche des suites à différence constante (true) ou variable (false)",
+            "default": true
+          },
+          "respecter_ordre_apparition": {
+            "type": "boolean",
+            "description": "Respecter l'ordre d'apparition des nombres dans la suite",
+            "default": false
+          },
+          "longueur_suite_filtre": {
+            "type": "integer",
+            "description": "Longueur spécifique de suite à rechercher",
+            "minimum": 3,
+            "example": 3,
+            "default": null
+          },
+          "verifier_completion": {
+            "type": "boolean",
+            "description": "Vérifier si les suites sont complètes",
+            "default": true
+          },
+          "valeur_min": {
+            "type": "integer",
+            "description": "Valeur minimale possible pour les numéros",
+            "default": 1,
+            "minimum": 1
+          },
+          "valeur_max": {
+            "type": "integer",
+            "description": "Valeur maximale possible pour les numéros",
+            "default": 90,
+            "minimum": 1
+          }
+        }
+      },
+      "AnalyzeResponse": {
+        "type": "object",
+        "properties": {
+          "total_suites": {
+            "type": "integer",
+            "description": "Nombre total de suites trouvées",
+            "example": 15
+          },
+          "total_tirages_avec_suites": {
+            "type": "integer",
+            "description": "Nombre total de tirages contenant des suites",
+            "example": 8
+          },
+          "suites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Suite"
+            }
+          }
+        }
+      },
+      "Suite": {
+        "type": "object",
+        "properties": {
+          "cle": {
+            "type": "string",
+            "description": "Clé unique identifiant la suite",
+            "example": "01/01/2020_Loto"
+          },
+          "suite": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Nombres formant la suite",
+            "example": [3, 6, 9, 12]
+          },
+          "type_suite": {
+            "type": "string",
+            "description": "Type de suite (constante ou variable)",
+            "enum": ["constante", "variable"],
+            "example": "constante"
+          },
+          "direction": {
+            "type": "string",
+            "description": "Direction de la suite",
+            "enum": ["horizontale", "verticale", "verticale_inter_colonnes"],
+            "example": "horizontale"
+          },
+          "colonnes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Colonnes où les nombres ont été trouvés",
+            "example": ["Num1", "Num2", "Num3", "Num4"]
+          },
+          "raison": {
+            "type": "integer",
+            "description": "Raison de la suite arithmétique (pour les suites constantes)",
+            "example": 3
+          },
+          "differences": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Différences entre les nombres (pour les suites variables)",
+            "example": [2, 3, 5]
+          },
+          "est_complete": {
+            "type": "boolean",
+            "description": "Indique si la suite est complète dans l'intervalle [valeur_min, valeur_max]",
+            "example": false
+          },
+          "elements_manquants": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Éléments manquants dans la suite",
+            "example": [15, 18]
+          },
+          "dates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Dates associées aux nombres de la suite",
+            "example": ["01/01/2020"]
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Types de tirage associés aux nombres de la suite",
+            "example": ["Loto"]
+          }
+        }
+      }
+    }
+  }
+}
