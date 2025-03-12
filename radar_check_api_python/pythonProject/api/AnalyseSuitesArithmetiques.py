@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, jsonify, Blueprint
 from flask_cors import CORS
 from pythonProject.myClass.LotteryAnalyzer import LotteryAnalyzer
@@ -8,18 +7,25 @@ app = Flask(__name__)
 CORS(app)
 
 # Créer un blueprint pour l'API
-api = Blueprint('AnalyseSuitesArithmetiques', __name__)
+api = Blueprint('analyse_suites_arithmetiques', __name__)
 
 # Initialiser l'analyseur de loterie
 analyzer = LotteryAnalyzer()
 
 
-@api.route('/lottery/analyze', methods=['POST'])
+@api.route('/analyze', methods=['POST'])
 def analyze_lottery():
     """Point d'entrée API pour l'analyse des suites arithmétiques."""
     try:
-        # Obtenir les paramètres de la requête
-        data = request.json
+        # Gérer différents types de contenu
+        if request.content_type == 'application/json':
+            data = request.get_json()
+        elif request.content_type.startswith('multipart/form-data'):
+            data = request.form.to_dict()
+        elif request.content_type == 'application/x-www-form-urlencoded':
+            data = request.form.to_dict()
+        else:
+            return jsonify({"error": "Type de contenu non supporté"}), 400
 
         # Vérifier si un fichier CSV a été spécifié
         if 'csv_path' not in data:
@@ -65,10 +71,3 @@ def analyze_lottery():
 def health_check():
     """Point d'entrée API pour vérifier que l'API est opérationnelle."""
     return jsonify({"status": "OK", "message": "L'API d'analyse de loterie est opérationnelle"})
-
-
-# Enregistrer le blueprint
-#app.register_blueprint(api, url_prefix='/api')
-
-#if __name__ == '__main__':
- #   app.run(debug=True)

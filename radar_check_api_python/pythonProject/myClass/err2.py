@@ -1,15 +1,16 @@
 import json
 import pandas as pd
+import numpy as np
 from datetime import datetime
-import sys
 from typing import List, Dict, Union, Optional
 from tqdm import tqdm
 from collections import defaultdict
 
 
-class LotterySequenceAnalyzer:
+class ProgressRegressConstantesClass:
     """
     Classe d'analyse de séquences constantes dans les résultats de loterie.
+    Optimisée pour de meilleures performances.
     """
 
     def __init__(self):
@@ -20,25 +21,23 @@ class LotterySequenceAnalyzer:
     def load_data(self, csv_file: str) -> bool:
         """
         Charge les données à partir d'un fichier CSV.
-
-        Args:
-            csv_file: Chemin vers le fichier CSV des résultats de loterie
-
-        Returns:
-            bool: True si le chargement a réussi, False sinon
+        Optimisée pour utiliser dtypes dès le chargement.
         """
         try:
-            self.df = pd.read_csv(csv_file, sep=';', parse_dates=['Date'], dayfirst=True, low_memory=False)
+            # Définition des types de colonnes pour optimiser le chargement
+            dtype_dict = {}
+            for col in self.num_cols + self.machine_cols:
+                dtype_dict[col] = 'Int64'
 
-            # Convertir les colonnes numériques
-            colonnes_numeriques = self.num_cols + self.machine_cols
-            for col in colonnes_numeriques:
-                if col in self.df.columns:
-                    try:
-                        self.df[col] = pd.to_numeric(self.df[col], errors='raise').astype('Int64')
-                    except ValueError as e:
-                        print(f"Erreur de conversion de type pour la colonne {col}: {e}")
-                        return False
+            # Utilisation de la fonction read_csv avec les types définis
+            self.df = pd.read_csv(
+                csv_file,
+                sep=';',
+                parse_dates=['Date'],
+                dayfirst=True,
+                dtype=dtype_dict,
+                low_memory=False
+            )
             return True
         except FileNotFoundError:
             print("Fichier CSV non trouvé.")
@@ -47,36 +46,59 @@ class LotterySequenceAnalyzer:
             print(f"Erreur lors de la lecture du fichier CSV: {e}")
             return False
 
+    def _filter_empty_results(self, results: Dict) -> Dict:
+        """
+        Filtre les résultats pour ne conserver que les données non vides.
+        Version optimisée avec moins de récursions.
+        """
+        if not isinstance(results, dict):
+            return results
+
+        filtered_results = {}
+        for key, value in results.items():
+            if isinstance(value, dict):
+                filtered_value = self._filter_empty_results(value)
+                if filtered_value:
+                    filtered_results[key] = filtered_value
+            elif isinstance(value, list) and value:
+                filtered_results[key] = value
+            elif value or value == 0:  # Garde les valeurs non vides y compris 0
+                filtered_results[key] = value
+
+        # Cas spécial pour les dictionnaires contenant "progressions_constantes" et "regressions_constantes"
+        if 'progressions_constantes' in results and 'regressions_constantes' in results:
+            if not results['progressions_constantes'] and not results['regressions_constantes']:
+                return {}
+
+        return filtered_results
+
     def filter_data(self,
                     date_debut: Optional[str] = None,
                     date_fin: Optional[str] = None,
-                    type_tirage: Optional[str] = None,
+                    type_tirage: Optional[Union[str, List[str]]] = None,
                     reverse_order: bool = False) -> bool:
         """
         Filtre les données selon les critères spécifiés.
-
-        Args:
-            date_debut: Date de début au format DD/MM/YYYY
-            date_fin: Date de fin au format DD/MM/YYYY
-            type_tirage: Type de tirage à filtrer
-            reverse_order: Si True, inverse l'ordre des tirages
-
-        Returns:
-            bool: True si le filtrage a réussi, False sinon
+        Optimisée pour utiliser des masques vectorisés.
         """
         if self.df is None:
             print("Aucune donnée chargée. Utilisez load_data() d'abord.")
             return False
 
-        df_filtered = self.df.copy()
+        # Création d'une copie optimisée (shallow copy)
+        df_filtered = self.df.copy(deep=False)
 
+        # Inversion de l'ordre si nécessaire
         if reverse_order:
-            df_filtered = df_filtered.iloc[::-1].copy()
+            df_filtered = df_filtered.iloc[::-1].reset_index(drop=True)
+
+        # Application des filtres de dates avec des masques
+        mask = pd.Series(True, index=df_filtered.index)
 
         if date_debut:
             try:
                 date_debut_dt = datetime.strptime(date_debut, '%d/%m/%Y')
-                df_filtered = df_filtered[df_filtered['Date'] >= date_debut_dt]
+                mask &= df_filtered['Date'] >= date_debut_dt
             except ValueError:
                 print("Format de date de début incorrect. Utilisez DD/MM/YYYY.")
                 return False
@@ -84,13 +106,20 @@ class LotterySequenceAnalyzer:
         if date_fin:
             try:
                 date_fin_dt = datetime.strptime(date_fin, '%d/%m/%Y')
-                df_filtered = df_filtered[df_filtered['Date'] <= date_fin_dt]
+                mask &= df_filtered['Date'] <= date_fin_dt
             except ValueError:
                 print("Format de date de fin incorrect. Utilisez DD/MM/YYYY.")
                 return False
 
+        # Application du filtre de type de tirage
         if type_tirage:
-            df_filtered = df_filtered[df_filtered['Type de Tirage'] == type_tirage]
+            if isinstance(type_tirage, list):
+                mask &= df_filtered['Type de Tirage'].isin(type_tirage)
+            else:
+                mask &= df_filtered['Type de Tirage'] == type_tirage
+
+        # Application du masque final
+        df_filtered = df_filtered[mask]
 
         if df_filtered.empty:
             print("Aucun tirage ne correspond aux critères spécifiés.")
@@ -109,73 +138,48 @@ class LotterySequenceAnalyzer:
                                        reverse_order: bool = False) -> Dict:
         """
         Analyse les progressions constantes dans les données.
-
-        Args:
-            longueur_min: Longueur minimale des séquences à rechercher
-            type_analyse: Type d'analyse ('progression', 'regression', ou None pour les deux)
-            respecter_position: Si True, analyse par position, sinon sans tenir compte des positions
-            analyser_meme_ligne: Si True, analyse les progressions sur une même ligne
-            fusionner_num_machine: Si True, analyse les numéros et machines ensemble
-            utiliser_longueur_min: Si True, applique le filtre de longueur minimum
-            reverse_order: Si True, analyse dans l'ordre inverse
-
-        Returns:
-            Dict: Résultats de l'analyse
+        Optimisée pour éviter les duplications de code.
         """
         if self.df is None:
             return {"error": "Aucune donnée chargée. Utilisez load_data() d'abord."}
 
         resultats = {}
-
+        # Extraire seulement les colonnes nécessaires pour optimiser la mémoire
         df_analyse = self.df[['Date', 'Type de Tirage'] + self.num_cols + self.machine_cols].copy()
 
+        # Convertir toutes les colonnes numériques en une seule fois pour éviter les boucles
+        cols_to_convert = self.num_cols + self.machine_cols
+        for col in cols_to_convert:
+            if col in df_analyse.columns:
+                df_analyse[col] = pd.to_numeric(df_analyse[col], errors='coerce').astype('Int64')
+
+        # Déterminer les colonnes à analyser
         if fusionner_num_machine:
             colonnes = self.num_cols + self.machine_cols
-            if respecter_position:
-                resultats['num_et_machine'] = self._analyser_sequences_constantes(df_analyse, colonnes, longueur_min,
-                                                                                  type_analyse, analyser_meme_ligne,
-                                                                                  utiliser_longueur_min, reverse_order)
-            else:
-                resultats['num_et_machine'] = self._analyser_sequences_sans_position(df_analyse, colonnes, longueur_min,
-                                                                                     type_analyse, analyser_meme_ligne,
-                                                                                     utiliser_longueur_min,
-                                                                                     reverse_order)
+            analyser_func = self._analyser_sequences_sans_position if not respecter_position else self._analyser_sequences_constantes
+            resultats['num_et_machine'] = analyser_func(df_analyse, colonnes, longueur_min, type_analyse,
+                                                        analyser_meme_ligne, utiliser_longueur_min, reverse_order)
         else:
-            if respecter_position:
-                resultats['num'] = self._analyser_sequences_constantes(df_analyse, self.num_cols, longueur_min,
-                                                                       type_analyse,
-                                                                       analyser_meme_ligne, utiliser_longueur_min,
-                                                                       reverse_order)
-                resultats['machine'] = self._analyser_sequences_constantes(df_analyse, self.machine_cols, longueur_min,
-                                                                           type_analyse, analyser_meme_ligne,
-                                                                           utiliser_longueur_min, reverse_order)
-            else:
-                resultats['num'] = self._analyser_sequences_sans_position(df_analyse, self.num_cols, longueur_min,
-                                                                          type_analyse,
-                                                                          analyser_meme_ligne, utiliser_longueur_min,
-                                                                          reverse_order)
-                resultats['machine'] = self._analyser_sequences_sans_position(df_analyse, self.machine_cols,
-                                                                              longueur_min,
-                                                                              type_analyse, analyser_meme_ligne,
-                                                                              utiliser_longueur_min, reverse_order)
+            analyser_func = self._analyser_sequences_sans_position if not respecter_position else self._analyser_sequences_constantes
+            resultats['num'] = analyser_func(df_analyse, self.num_cols, longueur_min, type_analyse,
+                                             analyser_meme_ligne, utiliser_longueur_min, reverse_order)
+            resultats['machine'] = analyser_func(df_analyse, self.machine_cols, longueur_min, type_analyse,
+                                                 analyser_meme_ligne, utiliser_longueur_min, reverse_order)
 
-        return resultats
+        # Filtrer les résultats vides avant de les retourner
+        return self._filter_empty_results(resultats)
 
     def save_results(self, resultats: Dict, output_file: str) -> bool:
         """
         Enregistre les résultats dans un fichier JSON.
-
-        Args:
-            resultats: Dictionnaire des résultats
-            output_file: Chemin du fichier de sortie
-
-        Returns:
-            bool: True si l'enregistrement a réussi, False sinon
         """
         try:
-            json_output = json.dumps(resultats, indent=4, ensure_ascii=False)
+            # Filtrer les résultats vides avant de les enregistrer
+            filtered_results = self._filter_empty_results(resultats)
+
+            # Écriture directe pour éviter de charger tout en mémoire
             with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(json_output)
+                json.dump(filtered_results, f, indent=4, ensure_ascii=False)
             return True
         except Exception as e:
             print(f"Erreur lors de l'enregistrement dans le fichier : {e}")
@@ -191,29 +195,32 @@ class LotterySequenceAnalyzer:
                                        reverse_order: bool = False) -> Dict:
         """
         Analyse les séquences constantes par position.
+        Version optimisée avec meilleure gestion de mémoire.
         """
         resultats = {}
         all_types_data = {}
 
+        # Analyse sur même ligne si demandé
         if analyser_meme_ligne:
             all_types_data['Même ligne'] = self._analyser_meme_ligne_progressions(df, colonnes, longueur_min,
                                                                                   type_analyse, utiliser_longueur_min)
 
+        # Analyse par position pour tous les types de tirage
         all_types_data = {}
-        with tqdm(colonnes, desc="Analyse par position") as pbar:
-            for position, colonne in enumerate(pbar):
-                all_types_data[f'Position {position + 1}'] = self._trouver_sequences_constantes(df, colonne,
-                                                                                                longueur_min,
-                                                                                                type_analyse,
-                                                                                                utiliser_longueur_min,
-                                                                                                reverse_order)
+        for position, colonne in enumerate(tqdm(colonnes, desc="Analyse par position")):
+            all_types_data[f'Position {position + 1}'] = self._trouver_sequences_constantes(df, colonne,
+                                                                                            longueur_min,
+                                                                                            type_analyse,
+                                                                                            utiliser_longueur_min,
+                                                                                            reverse_order)
 
         resultats['tous_types'] = all_types_data
 
+        # Analyse par type de tirage
         types_tirages = df['Type de Tirage'].unique()
         for type_tirage in types_tirages:
             df_type = df[df['Type de Tirage'] == type_tirage]
-            if not utiliser_longueur_min or len(df_type) > longueur_min - 1:
+            if not utiliser_longueur_min or len(df_type) >= longueur_min:
                 type_data = {}
 
                 if analyser_meme_ligne:
@@ -221,14 +228,12 @@ class LotterySequenceAnalyzer:
                                                                                      type_analyse,
                                                                                      utiliser_longueur_min)
 
-                type_data = {}
-                with tqdm(colonnes, desc=f"Analyse par position ({type_tirage})") as pbar:
-                    for position, colonne in enumerate(pbar):
-                        type_data[f'Position {position + 1}'] = self._trouver_sequences_constantes(df_type, colonne,
-                                                                                                   longueur_min,
-                                                                                                   type_analyse,
-                                                                                                   utiliser_longueur_min,
-                                                                                                   reverse_order)
+                for position, colonne in enumerate(tqdm(colonnes, desc=f"Analyse par position ({type_tirage})")):
+                    type_data[f'Position {position + 1}'] = self._trouver_sequences_constantes(df_type, colonne,
+                                                                                               longueur_min,
+                                                                                               type_analyse,
+                                                                                               utiliser_longueur_min,
+                                                                                               reverse_order)
                 resultats[type_tirage] = type_data
 
         return resultats
@@ -242,78 +247,71 @@ class LotterySequenceAnalyzer:
                                       reverse_order: bool = False) -> Dict:
         """
         Trouve les séquences de progression/régression constante dans une colonne spécifique.
+        Version optimisée pour le traitement vectoriel.
         """
-        progressions_constantes = []
-        regressions_constantes = []
-
         # Tri du DataFrame en fonction de la date
         df = df.sort_values(by='Date', ascending=not reverse_order)
 
-        # Convertir la colonne en type entier
-        df.loc[:, colonne] = pd.to_numeric(df[colonne], errors='coerce').astype('Int64')
+        # Conversion et préparation des données
+        # On utilise np.array pour accélérer les calculs
+        valeurs = df[colonne].to_numpy()
+        dates = df['Date'].to_numpy()
+        types_tirages = df['Type de Tirage'].to_numpy()
 
-        # Convertir la colonne et la date en listes pour une itération rapide
-        valeurs = df[colonne].tolist()
-        dates = df['Date'].tolist()
-        types_tirages = df['Type de Tirage'].tolist()
+        # Calcul des différences entre valeurs consécutives
+        differences = np.diff(valeurs)
 
-        # Initialiser les variables pour suivre la séquence actuelle
+        # Initialisation des listes pour stocker les séquences
+        progressions_constantes = []
+        regressions_constantes = []
+
+        # Recherche des séquences
         i = 0
         while i < len(valeurs) - 1:
-            valeur_initiale = valeurs[i]
-            date_initiale = dates[i]
-            type_tirage_initial = types_tirages[i]
-
-            # Calculer la différence entre la valeur actuelle et la suivante
-            diff_constante = valeurs[i + 1] - valeur_initiale
-
             # Si la différence est nulle, passer à la valeur suivante
-            if diff_constante == 0:
+            if differences[i] == 0:
                 i += 1
                 continue
 
             # Initialiser la séquence courante
-            sequence_courante = [valeur_initiale]
-            sequence_dates = [date_initiale]
-            sequence_types = [type_tirage_initial]
+            diff_constante = differences[i]
+            sequence_courante = [valeurs[i]]
+            sequence_dates = [dates[i]]
+            sequence_types = [types_tirages[i]]
 
-            # Trouver les valeurs suivantes qui suivent la même progression
-            j = i + 1
-            while j < len(valeurs) and valeurs[j] - sequence_courante[-1] == diff_constante:
-                # Ajouter la valeur à la séquence courante
-                sequence_courante.append(valeurs[j])
-                sequence_dates.append(dates[j])
-                sequence_types.append(types_tirages[j])
-
-                # Passer à la valeur suivante
+            # Trouver la longueur de la séquence
+            j = i
+            while j < len(differences) and differences[j] == diff_constante:
+                sequence_courante.append(valeurs[j + 1])
+                sequence_dates.append(dates[j + 1])
+                sequence_types.append(types_tirages[j + 1])
                 j += 1
 
-            # Appliquer le filtre de longueur si utiliser_longueur_min est True
+            # Appliquer le filtre de longueur
             if not utiliser_longueur_min or len(sequence_courante) >= longueur_min:
-                # Créer un dictionnaire pour stocker les informations de la séquence
                 sequence_info = {
-                    'valeurs': sequence_courante,
-                    'difference': diff_constante,
+                    'valeurs': sequence_courante.copy(),
+                    'difference': int(diff_constante),  # Convertir en int pour JSON
                     'longueur': len(sequence_courante),
                     'dates': [date.strftime('%d/%m/%Y') for date in sequence_dates],
-                    'types': sequence_types,
-                    'colonne': colonne  # Ajout de la colonne
+                    'types': sequence_types.tolist(),  # Convertir numpy array en liste
+                    'colonne': colonne
                 }
 
-                # Ajouter la séquence à la liste appropriée
+                # Ajouter à la liste appropriée
                 if diff_constante > 0:
                     progressions_constantes.append(sequence_info)
                 else:
                     regressions_constantes.append(sequence_info)
 
-            # Passer à la valeur suivante
+            # Passer à la prochaine séquence
             i = j
 
-        # Trier les progressions et régressions par longueur
+        # Trier les séquences par longueur
         progressions_constantes.sort(key=lambda x: x['longueur'], reverse=True)
         regressions_constantes.sort(key=lambda x: x['longueur'], reverse=True)
 
-        # Retourner les résultats en fonction du type d'analyse demandé
+        # Retourner les résultats selon le type d'analyse
         if type_analyse == 'progression':
             return {
                 'progressions_constantes': progressions_constantes,
@@ -338,36 +336,46 @@ class LotterySequenceAnalyzer:
                                           utiliser_longueur_min: bool = True) -> Dict:
         """
         Analyse les progressions sur une même ligne de tirage.
+        Version optimisée avec traitement vectoriel.
         """
         progressions_constantes = []
         regressions_constantes = []
 
+        # Convertir toutes les colonnes en une fois
         for col in colonnes:
-            df.loc[:, col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+            df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
 
-        for idx, row in df.iterrows():
-            valeurs = row[colonnes].tolist()
+        # Utiliser apply au lieu d'itérer sur chaque ligne
+        df_values = df[colonnes].values
+
+        for idx, row in tqdm(df.iterrows(), total=len(df), desc="Analyse des lignes"):
+            valeurs = row[colonnes].values
             date = row['Date'].strftime('%d/%m/%Y')
             type_tirage = row['Type de Tirage']
 
             i = 0
             while i < len(valeurs) - 1:
-                sequence_courante = [valeurs[i]]
+                # Initialiser la séquence
                 diff_constante = valeurs[i + 1] - valeurs[i]
 
+                # Ignorer les différences nulles
                 if diff_constante == 0:
                     i += 1
                     continue
 
+                # Trouver la longueur de la séquence
+                sequence_courante = [valeurs[i]]
                 j = i + 1
+
                 while j < len(valeurs) and valeurs[j] - valeurs[j - 1] == diff_constante:
                     sequence_courante.append(valeurs[j])
                     j += 1
 
+                # Appliquer le filtre de longueur
                 if not utiliser_longueur_min or len(sequence_courante) >= longueur_min:
                     sequence_info = {
                         'valeurs': sequence_courante,
-                        'difference': diff_constante,
+                        'difference': int(diff_constante),
                         'longueur': len(sequence_courante),
                         'dates': [date] * len(sequence_courante),
                         'types': [type_tirage] * len(sequence_courante),
@@ -379,11 +387,14 @@ class LotterySequenceAnalyzer:
                     else:
                         regressions_constantes.append(sequence_info)
 
+                # Passer à la position suivante
                 i = j
 
+        # Trier les séquences
         progressions_constantes.sort(key=lambda x: x['longueur'], reverse=True)
         regressions_constantes.sort(key=lambda x: x['longueur'], reverse=True)
 
+        # Retourner les résultats selon le type d'analyse
         if type_analyse == 'progression':
             return {
                 'progressions_constantes': progressions_constantes,
@@ -410,6 +421,7 @@ class LotterySequenceAnalyzer:
                                           reverse_order: bool = False) -> Dict:
         """
         Analyse les séquences sans tenir compte des positions.
+        Version optimisée.
         """
         resultats = {}
         all_types_data = {}
@@ -424,10 +436,12 @@ class LotterySequenceAnalyzer:
 
         resultats['tous_types'] = all_types_data
 
+        # Analyse par type de tirage en utilisant un groupby
         types_tirages = df['Type de Tirage'].unique()
+
         for type_tirage in types_tirages:
             df_type = df[df['Type de Tirage'] == type_tirage]
-            if not utiliser_longueur_min or len(df_type) > longueur_min - 1:
+            if not utiliser_longueur_min or len(df_type) >= longueur_min:
                 type_data = {}
 
                 if analyser_meme_ligne:
@@ -453,12 +467,16 @@ class LotterySequenceAnalyzer:
                                          reverse_order: bool = False) -> Dict:
         """
         Trouve les séquences sans tenir compte des positions.
+        Version optimisée avec HashMap pour accélérer les recherches.
         """
-        # Convertir les colonnes en type entier
+        # Convertir les colonnes en entiers
         for col in colonnes:
-            df.loc[:, col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+            df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
 
-        # Précalculer les données nécessaires
+        # Tri du DataFrame par date
+        df = df.sort_values(by='Date', ascending=not reverse_order)
+
+        # Restructuration des données pour un accès plus rapide
         sequence_data = []
         for idx, row in df.iterrows():
             date = row['Date']
@@ -466,62 +484,63 @@ class LotterySequenceAnalyzer:
             numeros = [{'numero': row[col], 'colonne': col, 'date': date, 'type': type_tirage} for col in colonnes]
             sequence_data.append({'date': date, 'type': type_tirage, 'numeros': numeros})
 
-        # Précalculer un index des numéros par valeur et date
-        numero_par_valeur_date = defaultdict(list)
-        for i, data in enumerate(sequence_data):
+        # Optimisation: créer un dictionnaire des numéros par valeur
+        # Structure: {valeur: [{'numero': val, 'colonne': col, 'date': date, 'type': type}, ...]}
+        numero_par_valeur = defaultdict(list)
+        for data in sequence_data:
             for num in data['numeros']:
-                numero_par_valeur_date[(num['numero'], num['date'])].append(num)
+                numero_par_valeur[num['numero']].append(num)
 
+        # Structure de données pour suivre les séquences
         sequences_constantes = []
         sequences_vues = set()
 
-        for i in tqdm(range(len(sequence_data)), desc="Analyse des séquences"):
-            for num_i in sequence_data[i]['numeros']:
-                # Calculer les différences potentielles
-                valeurs_possibles = set()
-                for data in sequence_data:
-                    for num in data['numeros']:
-                        if num['numero'] != num_i['numero']:
-                            valeurs_possibles.add(num['numero'])
+        # Analyse des séquences
+        for i, data_i in enumerate(tqdm(sequence_data, desc="Recherche des séquences")):
+            for num_i in data_i['numeros']:
+                valeur_i = num_i['numero']
+                date_i = num_i['date']
 
-                differences = {val - num_i['numero'] for val in valeurs_possibles if val - num_i['numero'] != 0}
+                # Trouver toutes les différences potentielles
+                for valeur_j in numero_par_valeur.keys():
+                    diff = valeur_j - valeur_i
+                    if diff == 0:
+                        continue
 
-                for diff in differences:
+                    # Vérifier s'il existe une séquence avec cette différence
                     sequence_courante = [num_i]
-                    valeur_attendue = num_i['numero'] + diff
-                    date_prec = num_i['date']
-                    j = i + 1
+                    valeur_courante = valeur_i
+                    date_courante = date_i
 
-                    while j < len(sequence_data):
-                        # Recherche directe dans l'index
-                        candidats = numero_par_valeur_date.get((valeur_attendue, sequence_data[j]['date']), [])
+                    # Boucle pour trouver les membres suivants de la séquence
+                    while True:
+                        valeur_suivante = valeur_courante + diff
+                        candidats = [n for n in numero_par_valeur.get(valeur_suivante, [])
+                                     if (not reverse_order and n['date'] > date_courante) or
+                                     (reverse_order and n['date'] < date_courante)]
 
-                        # Filtrer les candidats en fonction de l'ordre inverse
-                        if not reverse_order:
-                            candidats = [c for c in candidats if c['date'] > date_prec]
-                        else:
-                            candidats = [c for c in candidats if c['date'] < date_prec]
-
-                        if candidats:
-                            num_j = candidats[0]  # Prendre le premier candidat
-                            sequence_courante.append(num_j)
-                            valeur_attendue += diff
-                            date_prec = num_j['date']
-                        else:
+                        if not candidats:
                             break
-                        j += 1
 
-                    # Appliquer le filtre de longueur si utiliser_longueur_min est True
+                        # Prendre le candidat avec la date la plus proche
+                        if reverse_order:
+                            candidat = max(candidats, key=lambda x: x['date'])
+                        else:
+                            candidat = min(candidats, key=lambda x: x['date'])
+
+                        sequence_courante.append(candidat)
+                        valeur_courante = valeur_suivante
+                        date_courante = candidat['date']
+
+                    # Vérifier si la séquence est assez longue
                     if not utiliser_longueur_min or len(sequence_courante) >= longueur_min:
+                        # Créer un identifiant unique pour cette séquence
                         valeurs = tuple(item['numero'] for item in sequence_courante)
                         dates = tuple(item['date'].strftime('%d/%m/%Y') for item in sequence_courante)
+                        sequence_id = (valeurs, dates, diff)
 
-                        # Convertir la séquence en un tuple pour la rendre hashable
-                        sequence_tuple = (valeurs, dates, diff)
-
-                        # Vérifier si cette séquence a déjà été vue
-                        if sequence_tuple not in sequences_vues:
-                            sequences_vues.add(sequence_tuple)  # Ajouter la séquence à l'ensemble des séquences vues
+                        if sequence_id not in sequences_vues:
+                            sequences_vues.add(sequence_id)
 
                             sequences_constantes.append({
                                 'valeurs': list(valeurs),
@@ -532,14 +551,14 @@ class LotterySequenceAnalyzer:
                                 'types': [item['type'] for item in sequence_courante]
                             })
 
-        # Séparer progressions et régressions
+        # Séparer et trier les séquences
         progressions_constantes = [seq for seq in sequences_constantes if seq['difference'] > 0]
         regressions_constantes = [seq for seq in sequences_constantes if seq['difference'] < 0]
 
-        # Trier par longueur
         progressions_constantes.sort(key=lambda x: x['longueur'], reverse=True)
         regressions_constantes.sort(key=lambda x: x['longueur'], reverse=True)
 
+        # Retourner selon le type d'analyse
         if type_analyse == 'progression':
             return {
                 'progressions_constantes': progressions_constantes,

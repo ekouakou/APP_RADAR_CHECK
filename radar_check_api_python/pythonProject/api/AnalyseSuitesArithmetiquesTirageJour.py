@@ -7,7 +7,7 @@ import os
 
 app = Flask(__name__)
 CORS(app)
-api = Blueprint('AnalyseSuitesArithmetiquesTirageJour', __name__)
+api = Blueprint('analyse_suites_arithmetiques_jour', __name__)
 
 
 @api.route('/analyze', methods=['POST'])
@@ -16,45 +16,43 @@ def analyze():
     Endpoint API pour l'analyse des données
     Accepte un fichier CSV et divers paramètres de contrôle
     """
-    # Vérifier si un fichier est envoyé
-    if 'file' not in request.files:
+    file = None
+    data = {}
+
+    if request.content_type.startswith('multipart/form-data'):
+        file = request.files.get('file')
+        data = request.form.to_dict()
+    elif request.content_type == 'application/json':
+        data = request.get_json(silent=True) or {}
+
+    if not file:
         return jsonify({"error": "Aucun fichier fourni"}), 400
 
-    file = request.files['file']
-
-    # Paramètres de contrôle - tous récupérés depuis form-data
-    respect_columns = request.form.get('respect_columns', 'true').lower() == 'true'
-    page = int(request.form.get('page', '1'))
-    per_page = int(request.form.get('per_page', '50'))
-    min_sequence_length = int(request.form.get('min_sequence_length', '3'))
-    max_results_per_date = int(request.form.get('max_results_per_date', '500'))
-    search_depth = request.form.get('search_depth', 'medium').lower()
-    difference_type = request.form.get('difference_type', 'constant').lower()
-    respect_order = request.form.get('respect_order', 'true').lower() == 'true'
+    # Extraction des paramètres de contrôle
+    respect_columns = data.get('respect_columns', 'true').lower() == 'true'
+    page = int(data.get('page', '1'))
+    per_page = int(data.get('per_page', '50'))
+    min_sequence_length = int(data.get('min_sequence_length', '3'))
+    max_results_per_date = int(data.get('max_results_per_date', '500'))
+    search_depth = data.get('search_depth', 'medium').lower()
+    difference_type = data.get('difference_type', 'constant').lower()
+    respect_order = data.get('respect_order', 'true').lower() == 'true'
 
     # Récupérer les dates à filtrer
-    filter_dates = []
-    filter_dates_param = request.form.get('filter_dates', None)
-
-    if filter_dates_param:
+    filter_dates = data.get('filter_dates', [])
+    if isinstance(filter_dates, str):
         try:
-            # Essayer de parser comme JSON (tableau)
-            filter_dates = json.loads(filter_dates_param)
+            filter_dates = json.loads(filter_dates)
         except json.JSONDecodeError:
-            # Si ce n'est pas du JSON valide, traiter comme une chaîne séparée par des virgules
-            filter_dates = [date.strip() for date in filter_dates_param.split(',') if date.strip()]
+            filter_dates = [date.strip() for date in filter_dates.split(',') if date.strip()]
 
     # Récupérer les types de tirage à filtrer
-    filter_tirage_types = []
-    filter_tirage_types_param = request.form.get('filter_tirage_types', None)
-
-    if filter_tirage_types_param:
+    filter_tirage_types = data.get('filter_tirage_types', [])
+    if isinstance(filter_tirage_types, str):
         try:
-            # Essayer de parser comme JSON (tableau)
-            filter_tirage_types = json.loads(filter_tirage_types_param)
+            filter_tirage_types = json.loads(filter_tirage_types)
         except json.JSONDecodeError:
-            # Si ce n'est pas du JSON valide, traiter comme une chaîne séparée par des virgules
-            filter_tirage_types = [type_tirage.strip() for type_tirage in filter_tirage_types_param.split(',') if
+            filter_tirage_types = [type_tirage.strip() for type_tirage in filter_tirage_types.split(',') if
                                    type_tirage.strip()]
 
     try:
@@ -114,10 +112,3 @@ def analyze():
             "error": str(e),
             "traceback": traceback.format_exc()
         }), 500
-
-
-# Enregistrer le blueprint
-#app.register_blueprint(api, url_prefix='/api')
-
-#if __name__ == '__main__':
-#    app.run(debug=True)

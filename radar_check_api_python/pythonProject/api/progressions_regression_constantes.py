@@ -1,15 +1,15 @@
-# fichier: main.py
 from flask import Flask, Blueprint, request, jsonify
 from flask_cors import CORS
 import os
+import json
 from pathlib import Path
-from pythonProject.myClass.LotterySequenceAnalyzer import LotterySequenceAnalyzer
+from pythonProject.myClass.ProgressRegressConstantesClass import ProgressRegressConstantesClass
 
 app = Flask(__name__)
 CORS(app)
 
 # Créer un Blueprint pour le nouvel analyseur
-api = Blueprint('LotterySequenceAnalyzer', __name__)
+api = Blueprint('progress_regress_constantes', __name__)
 
 # Dossier pour les uploads
 UPLOAD_FOLDER = './uploads'
@@ -18,23 +18,42 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @api.route('/analyze', methods=['POST'])
 def analyze_lottery_data():
-    # Récupérer les paramètres de la requête
-    data = request.json
+    # Vérifier le type de contenu
+    if request.content_type == 'application/json':
+        data = request.get_json()
+    else:
+        data = request.form
 
-    # Paramètres avec valeurs par défaut
     date_debut = data.get('date_debut', '01/01/2025')
     date_fin = data.get('date_fin', '31/01/2025')
-    reverse_order = data.get('reverse_order', True)
-    longueur_min = data.get('longueur_min', 5)
-    type_analyse = data.get('type_analyse')  # 'progression', 'regression', ou None
-    respecter_position = data.get('respecter_position', False)
-    analyser_meme_ligne = data.get('analyser_meme_ligne', True)
-    fusionner_num_machine = data.get('fusionner_num_machine', False)
-    utiliser_longueur_min = data.get('utiliser_longueur_min', False)
+    reverse_order = str(data.get('reverse_order', 'True')).lower() == 'true'
+    longueur_min = int(data.get('longueur_min', '5'))
+    type_analyse = data.get('type_analyse')
+    respecter_position = str(data.get('respecter_position', 'False')).lower() == 'true'
+    analyser_meme_ligne = str(data.get('analyser_meme_ligne', 'True')).lower() == 'true'
+    fusionner_num_machine = str(data.get('fusionner_num_machine', 'False')).lower() == 'true'
+    utiliser_longueur_min = str(data.get('utiliser_longueur_min', 'False')).lower() == 'true'
+
+    # Récupérer le type de tirage qui peut être une chaîne ou une liste
+    type_tirage = data.get('type_tirage')
+
+    # Si le type_tirage est une chaîne JSON représentant une liste, la convertir en liste Python
+    if type_tirage and isinstance(type_tirage, str) and type_tirage.startswith('['):
+        try:
+            type_tirage = json.loads(type_tirage)
+        except json.JSONDecodeError:
+            # Si la conversion échoue, conserver la valeur originale
+            pass
+
+    # Gestion du fichier
     file_path = data.get('file_path', './uploads/formatted_lottery_results.csv')
+    if 'file' in request.files:
+        file = request.files['file']
+        file_path = os.path.join(UPLOAD_FOLDER, 'formatted_lottery_results.csv')
+        file.save(file_path)
 
     # Créer une instance de l'analyseur
-    analyzer = LotterySequenceAnalyzer()
+    analyzer = ProgressRegressConstantesClass()
 
     # Vérifier si le fichier existe
     if not Path(file_path).exists():
@@ -49,6 +68,7 @@ def analyze_lottery_data():
         analyzer.filter_data(
             date_debut=date_debut,
             date_fin=date_fin,
+            type_tirage=type_tirage,  # Passer le type_tirage qui peut être une liste
             reverse_order=reverse_order
         )
 
@@ -63,13 +83,13 @@ def analyze_lottery_data():
         )
 
         # Enregistrer les résultats (facultatif)
-        output_file = f'./resultats_{date_debut}_{date_fin}.json'
-        analyzer.save_results(resultats, output_file)
+        #output_file = f'./resultats_{date_debut}_{date_fin}.json'
+        #analyzer.save_results(resultats, output_file)
 
         return jsonify({
             'success': True,
             'results': resultats,
-            'output_file': output_file
+            #'output_file': output_file
         })
     else:
         return jsonify({
@@ -101,3 +121,10 @@ def upload_file():
         'success': True,
         'file_path': file_path
     })
+
+
+# Enregistrer le blueprint
+app.register_blueprint(api, url_prefix='/api/progress_regress')
+
+if __name__ == '__main__':
+    app.run(debug=True)
