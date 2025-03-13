@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, Blueprint
 from flask_cors import CORS
-from myClass.LotteryAnalyzer import LotteryAnalyzer
+from pythonProject.myClass.LotteryAnalyzer import LotteryAnalyzer
 import os
 
 app = Flask(__name__)

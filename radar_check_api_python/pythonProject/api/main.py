@@ -19,5 +19,5 @@ app.register_blueprint(progressions_regression_constantes.api, url_prefix='/prog
 
 if __name__ == '__main__':
     # Définir le port sur lequel les deux API seront exécutées
-    port = 5001
+    port = 5000
     app.run(host='0.0.0.0', port=port, debug=True)

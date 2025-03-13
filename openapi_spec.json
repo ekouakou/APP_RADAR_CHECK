@@ -1,0 +1,284 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "L'analyse des suites arithm\u00e9tiques",
+    "description": "API pour l'analyse de donn\u00e9es de loterie avec diverses options de filtrage.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000",
+      "description": "Serveur local de d\u00e9veloppement"
+    }
+  ],
+  "paths": {
+    "/analyze": {
+      "post": {
+        "summary": "Analyser les donn\u00e9es de loterie",
+        "description": "Endpoint API pour l'analyse des donn\u00e9es de loterie.",
+        "responses": {
+          "200": {
+            "description": "Op\u00e9ration r\u00e9ussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Demande mal formul\u00e9e"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV \u00e0 analyser"
+                  },
+                  "date_debut": {
+                    "type": "string",
+                    "description": "Description pour date_debut",
+                    "example": "01/01/2025"
+                  },
+                  "date_fin": {
+                    "type": "string",
+                    "description": "Description pour date_fin",
+                    "example": "31/01/2025"
+                  },
+                  "reverse_order": {
+                    "type": "boolean",
+                    "description": "Description pour reverse_order",
+                    "example": true,
+                    "default": true
+                  },
+                  "longueur_min": {
+                    "type": "integer",
+                    "description": "Description pour longueur_min",
+                    "example": 5,
+                    "default": 5
+                  },
+                  "type_analyse": {
+                    "type": "string",
+                    "description": "Description pour type_analyse",
+                    "example": null
+                  },
+                  "respecter_position": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_position",
+                    "example": false,
+                    "default": false
+                  },
+                  "analyser_meme_ligne": {
+                    "type": "boolean",
+                    "description": "Description pour analyser_meme_ligne",
+                    "example": true,
+                    "default": true
+                  },
+                  "fusionner_num_machine": {
+                    "type": "boolean",
+                    "description": "Description pour fusionner_num_machine",
+                    "example": false,
+                    "default": false
+                  },
+                  "utiliser_longueur_min": {
+                    "type": "boolean",
+                    "description": "Description pour utiliser_longueur_min",
+                    "example": false,
+                    "default": false
+                  },
+                  "type_tirage": {
+                    "type": "string",
+                    "description": "Description pour type_tirage",
+                    "example": null
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date_debut": {
+                    "type": "string",
+                    "description": "Description pour date_debut",
+                    "example": "01/01/2025"
+                  },
+                  "date_fin": {
+                    "type": "string",
+                    "description": "Description pour date_fin",
+                    "example": "31/01/2025"
+                  },
+                  "reverse_order": {
+                    "type": "boolean",
+                    "description": "Description pour reverse_order",
+                    "example": true,
+                    "default": true
+                  },
+                  "longueur_min": {
+                    "type": "integer",
+                    "description": "Description pour longueur_min",
+                    "example": 5,
+                    "default": 5
+                  },
+                  "type_analyse": {
+                    "type": "string",
+                    "description": "Description pour type_analyse",
+                    "example": null
+                  },
+                  "respecter_position": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_position",
+                    "example": false,
+                    "default": false
+                  },
+                  "analyser_meme_ligne": {
+                    "type": "boolean",
+                    "description": "Description pour analyser_meme_ligne",
+                    "example": true,
+                    "default": true
+                  },
+                  "fusionner_num_machine": {
+                    "type": "boolean",
+                    "description": "Description pour fusionner_num_machine",
+                    "example": false,
+                    "default": false
+                  },
+                  "utiliser_longueur_min": {
+                    "type": "boolean",
+                    "description": "Description pour utiliser_longueur_min",
+                    "example": false,
+                    "default": false
+                  },
+                  "type_tirage": {
+                    "type": "string",
+                    "description": "Description pour type_tirage",
+                    "example": null
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lottery/health": {
+      "get": {
+        "summary": "V\u00e9rifier l'\u00e9tat de l'API",
+        "description": "Point d'entr\u00e9e API pour v\u00e9rifier que l'API est op\u00e9rationnelle.",
+        "responses": {
+          "200": {
+            "description": "Op\u00e9ration r\u00e9ussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Demande mal formul\u00e9e"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/upload": {
+      "post": {
+        "summary": "T\u00e9l\u00e9charger un fichier",
+        "description": "Endpoint pour t\u00e9l\u00e9charger un fichier CSV.",
+        "responses": {
+          "200": {
+            "description": "Fichier t\u00e9l\u00e9charg\u00e9 avec succ\u00e8s",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "file_path": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Aucun fichier trouv\u00e9"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV \u00e0 analyser"
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

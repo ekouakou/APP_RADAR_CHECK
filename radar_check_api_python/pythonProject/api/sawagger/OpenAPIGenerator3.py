@@ -164,7 +164,7 @@ class OpenAPIGenerator:
 
         self.openapi_spec["paths"][api_path][http_method.lower()] = endpoint_spec
 
-    def save_spec(self, file_path="openapi_spec.json"):
+    def save_spec(self, file_path="../../../../app_radar_check_reactjsVite_frontend/public/openapi_spec.json"):
         """
         Enregistre la spécification OpenAPI générée dans un fichier
         """
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     }
 
     generator.add_endpoint(
-        api_path="/analyze",
+        api_path="/analyse_suites_arithmetiques/analyze",
         http_method="POST",
         summary="Analyser les suites arithmétiques",
         description="Point d'entrée API pour l'analyse des suites arithmétiques.",
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     # Ajouter l'endpoint /lottery/health
     generator.add_endpoint(
-        api_path="/lottery/health",
+        api_path="/analyse_suites_arithmetiques/lottery/health",
         http_method="GET",
         summary="Vérifier l'état de l'API",
         description="Point d'entrée API pour vérifier que l'API est opérationnelle.",
@@ -214,6 +214,7 @@ if __name__ == "__main__":
 
     # Ajouter l'endpoint /analyze (deuxième exemple)
     analyze_params_2 = {
+        'file_path': './uploads/formatted_lottery_results.csv',
         'respect_columns': True,
         'page': 1,
         'per_page': 50,
@@ -222,12 +223,12 @@ if __name__ == "__main__":
         'search_depth': 'medium',
         'difference_type': 'constant',
         'respect_order': True,
-        'filter_dates': [],
-        'filter_tirage_types': []
+        "filter_dates": ["01/02/2021","02/02/2021"],
+        "filter_tirage_types": ["Reveil","Etoile","Akwaba"]
     }
 
     generator.add_endpoint(
-        api_path="/analyze",
+        api_path="/analyse_suites_arithmetiques_jour/analyze",
         http_method="POST",
         summary="Analyser les données de loterie",
         description="Endpoint API pour l'analyse des données. Accepte un fichier CSV et divers paramètres de contrôle.",

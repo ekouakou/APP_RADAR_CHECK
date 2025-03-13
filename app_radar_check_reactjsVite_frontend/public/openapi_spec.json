@@ -1,0 +1,699 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "L'analyse des suites arithm\u00e9tiques",
+    "description": "API pour l'analyse de donn\u00e9es de loterie avec diverses options de filtrage.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:5000",
+      "description": "Serveur local de d\u00e9veloppement"
+    }
+  ],
+  "paths": {
+    "/analyse_suites_arithmetiques/analyze": {
+      "post": {
+        "summary": "Analyser les suites arithm\u00e9tiques",
+        "description": "Point d'entr\u00e9e API pour l'analyse des suites arithm\u00e9tiques.",
+        "responses": {
+          "200": {
+            "description": "Op\u00e9ration r\u00e9ussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Demande mal formul\u00e9e"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "csv_path": {
+                    "type": "string",
+                    "description": "Description pour csv_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "sens_lecture": {
+                    "type": "boolean",
+                    "description": "Description pour sens_lecture",
+                    "example": true,
+                    "default": true
+                  },
+                  "colonnes": {
+                    "type": "string",
+                    "description": "Description pour colonnes",
+                    "example": "num"
+                  },
+                  "respecter_positions": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_positions",
+                    "example": true,
+                    "default": true
+                  },
+                  "types_tirage": {
+                    "type": "string",
+                    "description": "Description pour types_tirage",
+                    "example": null
+                  },
+                  "date_debut": {
+                    "type": "string",
+                    "description": "Description pour date_debut",
+                    "example": null
+                  },
+                  "date_fin": {
+                    "type": "string",
+                    "description": "Description pour date_fin",
+                    "example": null
+                  },
+                  "direction": {
+                    "type": "string",
+                    "description": "Description pour direction",
+                    "example": "horizontal"
+                  },
+                  "difference_constante": {
+                    "type": "boolean",
+                    "description": "Description pour difference_constante",
+                    "example": true,
+                    "default": true
+                  },
+                  "respecter_ordre_apparition": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_ordre_apparition",
+                    "example": false,
+                    "default": false
+                  },
+                  "longueur_suite_filtre": {
+                    "type": "string",
+                    "description": "Description pour longueur_suite_filtre",
+                    "example": null
+                  },
+                  "verifier_completion": {
+                    "type": "boolean",
+                    "description": "Description pour verifier_completion",
+                    "example": true,
+                    "default": true
+                  },
+                  "valeur_min": {
+                    "type": "integer",
+                    "description": "Description pour valeur_min",
+                    "example": 1,
+                    "default": 1
+                  },
+                  "valeur_max": {
+                    "type": "integer",
+                    "description": "Description pour valeur_max",
+                    "example": 90,
+                    "default": 90
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "csv_path": {
+                    "type": "string",
+                    "description": "Description pour csv_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "sens_lecture": {
+                    "type": "boolean",
+                    "description": "Description pour sens_lecture",
+                    "example": true,
+                    "default": true
+                  },
+                  "colonnes": {
+                    "type": "string",
+                    "description": "Description pour colonnes",
+                    "example": "num"
+                  },
+                  "respecter_positions": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_positions",
+                    "example": true,
+                    "default": true
+                  },
+                  "types_tirage": {
+                    "type": "string",
+                    "description": "Description pour types_tirage",
+                    "example": null
+                  },
+                  "date_debut": {
+                    "type": "string",
+                    "description": "Description pour date_debut",
+                    "example": null
+                  },
+                  "date_fin": {
+                    "type": "string",
+                    "description": "Description pour date_fin",
+                    "example": null
+                  },
+                  "direction": {
+                    "type": "string",
+                    "description": "Description pour direction",
+                    "example": "horizontal"
+                  },
+                  "difference_constante": {
+                    "type": "boolean",
+                    "description": "Description pour difference_constante",
+                    "example": true,
+                    "default": true
+                  },
+                  "respecter_ordre_apparition": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_ordre_apparition",
+                    "example": false,
+                    "default": false
+                  },
+                  "longueur_suite_filtre": {
+                    "type": "string",
+                    "description": "Description pour longueur_suite_filtre",
+                    "example": null
+                  },
+                  "verifier_completion": {
+                    "type": "boolean",
+                    "description": "Description pour verifier_completion",
+                    "example": true,
+                    "default": true
+                  },
+                  "valeur_min": {
+                    "type": "integer",
+                    "description": "Description pour valeur_min",
+                    "example": 1,
+                    "default": 1
+                  },
+                  "valeur_max": {
+                    "type": "integer",
+                    "description": "Description pour valeur_max",
+                    "example": 90,
+                    "default": 90
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyse_suites_arithmetiques/lottery/health": {
+      "get": {
+        "summary": "V\u00e9rifier l'\u00e9tat de l'API",
+        "description": "Point d'entr\u00e9e API pour v\u00e9rifier que l'API est op\u00e9rationnelle.",
+        "responses": {
+          "200": {
+            "description": "Op\u00e9ration r\u00e9ussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Demande mal formul\u00e9e"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        }
+      }
+    },
+    "/analyse_suites_arithmetiques_jour/analyze": {
+      "post": {
+        "summary": "Analyser les donn\u00e9es de loterie",
+        "description": "Endpoint API pour l'analyse des donn\u00e9es. Accepte un fichier CSV et divers param\u00e8tres de contr\u00f4le.",
+        "responses": {
+          "200": {
+            "description": "Op\u00e9ration r\u00e9ussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Demande mal formul\u00e9e"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV \u00e0 analyser"
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "respect_columns": {
+                    "type": "boolean",
+                    "description": "Description pour respect_columns",
+                    "example": true,
+                    "default": true
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Description pour page",
+                    "example": 1,
+                    "default": 1
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "description": "Description pour per_page",
+                    "example": 50,
+                    "default": 50
+                  },
+                  "min_sequence_length": {
+                    "type": "integer",
+                    "description": "Description pour min_sequence_length",
+                    "example": 3,
+                    "default": 3
+                  },
+                  "max_results_per_date": {
+                    "type": "integer",
+                    "description": "Description pour max_results_per_date",
+                    "example": 500,
+                    "default": 500
+                  },
+                  "search_depth": {
+                    "type": "string",
+                    "description": "Description pour search_depth",
+                    "example": "medium"
+                  },
+                  "difference_type": {
+                    "type": "string",
+                    "description": "Description pour difference_type",
+                    "example": "constant"
+                  },
+                  "respect_order": {
+                    "type": "boolean",
+                    "description": "Description pour respect_order",
+                    "example": true,
+                    "default": true
+                  },
+                  "filter_dates": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour filter_dates",
+                    "example": [
+                      "01/02/2021",
+                      "02/02/2021"
+                    ]
+                  },
+                  "filter_tirage_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour filter_tirage_types",
+                    "example": [
+                      "Reveil",
+                      "Etoile",
+                      "Akwaba"
+                    ]
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "respect_columns": {
+                    "type": "boolean",
+                    "description": "Description pour respect_columns",
+                    "example": true,
+                    "default": true
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Description pour page",
+                    "example": 1,
+                    "default": 1
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "description": "Description pour per_page",
+                    "example": 50,
+                    "default": 50
+                  },
+                  "min_sequence_length": {
+                    "type": "integer",
+                    "description": "Description pour min_sequence_length",
+                    "example": 3,
+                    "default": 3
+                  },
+                  "max_results_per_date": {
+                    "type": "integer",
+                    "description": "Description pour max_results_per_date",
+                    "example": 500,
+                    "default": 500
+                  },
+                  "search_depth": {
+                    "type": "string",
+                    "description": "Description pour search_depth",
+                    "example": "medium"
+                  },
+                  "difference_type": {
+                    "type": "string",
+                    "description": "Description pour difference_type",
+                    "example": "constant"
+                  },
+                  "respect_order": {
+                    "type": "boolean",
+                    "description": "Description pour respect_order",
+                    "example": true,
+                    "default": true
+                  },
+                  "filter_dates": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour filter_dates",
+                    "example": [
+                      "01/02/2021",
+                      "02/02/2021"
+                    ]
+                  },
+                  "filter_tirage_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour filter_tirage_types",
+                    "example": [
+                      "Reveil",
+                      "Etoile",
+                      "Akwaba"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze": {
+      "post": {
+        "summary": "Analyser les donn\u00e9es de loterie",
+        "description": "Endpoint API pour l'analyse des donn\u00e9es de loterie.",
+        "responses": {
+          "200": {
+            "description": "Op\u00e9ration r\u00e9ussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Demande mal formul\u00e9e"
+          },
+          "500": {
+            "description": "Erreur interne du serveur"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV \u00e0 analyser"
+                  },
+                  "date_debut": {
+                    "type": "string",
+                    "description": "Description pour date_debut",
+                    "example": "01/01/2025"
+                  },
+                  "date_fin": {
+                    "type": "string",
+                    "description": "Description pour date_fin",
+                    "example": "31/01/2025"
+                  },
+                  "reverse_order": {
+                    "type": "boolean",
+                    "description": "Description pour reverse_order",
+                    "example": true,
+                    "default": true
+                  },
+                  "longueur_min": {
+                    "type": "integer",
+                    "description": "Description pour longueur_min",
+                    "example": 5,
+                    "default": 5
+                  },
+                  "type_analyse": {
+                    "type": "string",
+                    "description": "Description pour type_analyse",
+                    "example": null
+                  },
+                  "respecter_position": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_position",
+                    "example": false,
+                    "default": false
+                  },
+                  "analyser_meme_ligne": {
+                    "type": "boolean",
+                    "description": "Description pour analyser_meme_ligne",
+                    "example": true,
+                    "default": true
+                  },
+                  "fusionner_num_machine": {
+                    "type": "boolean",
+                    "description": "Description pour fusionner_num_machine",
+                    "example": false,
+                    "default": false
+                  },
+                  "utiliser_longueur_min": {
+                    "type": "boolean",
+                    "description": "Description pour utiliser_longueur_min",
+                    "example": false,
+                    "default": false
+                  },
+                  "type_tirage": {
+                    "type": "string",
+                    "description": "Description pour type_tirage",
+                    "example": null
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date_debut": {
+                    "type": "string",
+                    "description": "Description pour date_debut",
+                    "example": "01/01/2025"
+                  },
+                  "date_fin": {
+                    "type": "string",
+                    "description": "Description pour date_fin",
+                    "example": "31/01/2025"
+                  },
+                  "reverse_order": {
+                    "type": "boolean",
+                    "description": "Description pour reverse_order",
+                    "example": true,
+                    "default": true
+                  },
+                  "longueur_min": {
+                    "type": "integer",
+                    "description": "Description pour longueur_min",
+                    "example": 5,
+                    "default": 5
+                  },
+                  "type_analyse": {
+                    "type": "string",
+                    "description": "Description pour type_analyse",
+                    "example": null
+                  },
+                  "respecter_position": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_position",
+                    "example": false,
+                    "default": false
+                  },
+                  "analyser_meme_ligne": {
+                    "type": "boolean",
+                    "description": "Description pour analyser_meme_ligne",
+                    "example": true,
+                    "default": true
+                  },
+                  "fusionner_num_machine": {
+                    "type": "boolean",
+                    "description": "Description pour fusionner_num_machine",
+                    "example": false,
+                    "default": false
+                  },
+                  "utiliser_longueur_min": {
+                    "type": "boolean",
+                    "description": "Description pour utiliser_longueur_min",
+                    "example": false,
+                    "default": false
+                  },
+                  "type_tirage": {
+                    "type": "string",
+                    "description": "Description pour type_tirage",
+                    "example": null
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/upload": {
+      "post": {
+        "summary": "T\u00e9l\u00e9charger un fichier",
+        "description": "Endpoint pour t\u00e9l\u00e9charger un fichier CSV.",
+        "responses": {
+          "200": {
+            "description": "Fichier t\u00e9l\u00e9charg\u00e9 avec succ\u00e8s",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "file_path": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Aucun fichier trouv\u00e9"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV \u00e0 analyser"
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

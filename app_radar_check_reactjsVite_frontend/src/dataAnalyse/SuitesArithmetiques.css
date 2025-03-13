@@ -1,0 +1,132 @@
+/* SuitesArithmetiques.css */
+.type-baraka {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+  }
+  
+  .type-awale {
+    background-color: #cce5ff !important;
+    color: #004085 !important;
+  }
+  
+  .type-etoile {
+    background-color: #e0cffc !important;
+    color: #5a2d82 !important;
+  }
+  
+  .type-fortune {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+  }
+  
+  .type-benediction {
+    background-color: #d1ecf1 !important;
+    color: #0c5460 !important;
+  }
+  
+  .type-monni {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+  }
+  
+  .type-soutra {
+    background-color: #e2e3e5 !important;
+    color: #383d41 !important;
+  }
+  
+  .type-nuit-etoilee {
+    background-color: #d8d8ff !important;
+    color: #3a3a7b !important;
+  }
+  
+  /* Pour les boutons de filtrage */
+  .btn-light.type-baraka:hover, .btn-light.type-baraka:focus {
+    background-color: #c3e6cb !important;
+  }
+  
+  .btn-light.type-awale:hover, .btn-light.type-awale:focus {
+    background-color: #b8daff !important;
+  }
+  
+  .btn-light.type-etoile:hover, .btn-light.type-etoile:focus {
+    background-color: #d0bfec !important;
+  }
+  
+  .btn-light.type-fortune:hover, .btn-light.type-fortune:focus {
+    background-color: #ffe8a1 !important;
+  }
+  
+  .btn-light.type-benediction:hover, .btn-light.type-benediction:focus {
+    background-color: #bee5eb !important;
+  }
+  
+  .btn-light.type-monni:hover, .btn-light.type-monni:focus {
+    background-color: #f5c6cb !important;
+  }
+  
+  .btn-light.type-soutra:hover, .btn-light.type-soutra:focus {
+    background-color: #d6d8db !important;
+  }
+  
+  .btn-light.type-nuit-etoilee:hover, .btn-light.type-nuit-etoilee:focus {
+    background-color: #c8c8f0 !important;
+  }
+  
+  /* Pour les filtres actifs */
+  .btn-primary.type-baraka {
+    background-color: #155724 !important;
+    border-color: #155724 !important;
+  }
+  
+  .btn-primary.type-awale {
+    background-color: #004085 !important;
+    border-color: #004085 !important;
+  }
+  
+  .btn-primary.type-etoile {
+    background-color: #5a2d82 !important;
+    border-color: #5a2d82 !important;
+  }
+  
+  .btn-primary.type-fortune {
+    background-color: #856404 !important;
+    border-color: #856404 !important;
+  }
+  
+  .btn-primary.type-benediction {
+    background-color: #0c5460 !important;
+    border-color: #0c5460 !important;
+  }
+  
+  .btn-primary.type-monni {
+    background-color: #721c24 !important;
+    border-color: #721c24 !important;
+  }
+  
+  .btn-primary.type-soutra {
+    background-color: #383d41 !important;
+    border-color: #383d41 !important;
+  }
+  
+  .btn-primary.type-nuit-etoilee {
+    background-color: #3a3a7b !important;
+    border-color: #3a3a7b !important;
+  }
+  
+  h1 {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  .card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  }
+  
+  .gap-2 {
+    gap: 0.5rem;
+  }

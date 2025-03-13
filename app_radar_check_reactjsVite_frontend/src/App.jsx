@@ -27,13 +27,24 @@ import LotteryAnalysisComponent from "./AppComponents/LotteryAnalysisComponent";
 
 import BookusSection from "./AppComponents/BookusSection";
 import SwaggerUIComponent from "./swagger/SwaggerUIComponent";
+import SuitesArithmetiquesVisualisation from "./dataAnalyse/SuitesArithmetiquesVisualisation"
 
 function App() {
   // const [count, setCount] = useState(0)
 
   return (
     <div className="main-wrapper">
-      
+
+      <>
+        <main>
+          <Routes>
+            {/* <Route path="/" element={<SwaggerUIComponent />} /> */}
+            <Route path="/medecinliste" element={<SwaggerUIComponent />} />
+            <Route path="/medecinliste2" element={<SuitesArithmetiquesVisualisation />} />
+          </Routes>
+        </main>
+      </>
+
 
       <HeaderTopbar />
 
@@ -41,9 +52,8 @@ function App() {
 
       <HomeBanner />
 
-      <SwaggerUIComponent />
 
-      <LotteryAnalysisComponent />
+      {/* <LotteryAnalysisComponent /> */}
 
       <List />
 
