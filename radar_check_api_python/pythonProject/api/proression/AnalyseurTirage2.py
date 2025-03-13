@@ -262,125 +262,58 @@ class AnalyseurTirage:
         return suites
 
     def verifier_completion(self, suite):
-        """Vérifie si une suite est complète en identifiant tous les nombres manquants de la suite"""
-        # Si la suite est vide ou n'a qu'un élément, elle ne peut pas être complète
-        if len(suite) <= 1:
+        """
+        Vérifie de manière exhaustive si une suite arithmétique est complète
+        et identifie tous les nombres manquants possibles.
+        Limite les numéros à 90 maximum (contrainte de loterie).
+        """
+        # Si la suite est vide ou trop courte, elle ne peut pas être analysée
+        if len(suite) < 2:
             return []
 
-        # Pour les suites arithmétiques
-        nombres_manquants = []
+        # Créer un ensemble pour les recherches rapides
+        suite_set = set(suite)
+        suite_triee = sorted(suite)
 
-        # Déterminer la raison de la suite
-        if len(suite) >= 2:
-            # Calculer la raison (différence entre termes consécutifs)
-            raison = suite[1] - suite[0]
+        # Calculer toutes les raisons possibles entre les éléments consécutifs
+        raisons_candidates = []
+        for i in range(len(suite_triee) - 1):
+            raison = suite_triee[i + 1] - suite_triee[i]
+            if raison != 0:  # Ignorer les raisons nulles
+                raisons_candidates.append(raison)
 
-            # Vérifier si tous les éléments de la suite ont la même raison
-            raisons_constantes = True
-            for i in range(1, len(suite) - 1):
-                if suite[i + 1] - suite[i] != raison:
-                    raisons_constantes = False
-                    break
-
-            # Si la raison est constante, on peut identifier les nombres manquants
-            if raisons_constantes:
-                # Déterminer si la suite est croissante ou décroissante
-                est_croissante = raison > 0
-
-                # Trouver le début et la fin de la suite actuelle
-                debut_actuel = min(suite)
-                fin_actuelle = max(suite)
-
-                # Calculer combien de termes il peut y avoir avant le premier terme de la suite
-                termes_avant = []
-                terme_potentiel = debut_actuel - raison
-                # Continuer tant que les termes sont positifs (ou respectent d'autres contraintes si nécessaire)
-                while terme_potentiel > 0:  # Condition pour les nombres positifs
-                    termes_avant.append(terme_potentiel)
-                    terme_potentiel -= raison
-
-                # Calculer combien de termes il peut y avoir après le dernier terme de la suite
-                termes_apres = []
-                terme_potentiel = fin_actuelle + raison
-                # On peut ajouter d'autres conditions pour limiter l'étendue (par exemple, terme_potentiel <= 90 pour le loto)
-                # Pour cet exemple, on se limite à quelques termes après
-                for _ in range(5):  # Limiter à 5 termes après pour éviter une liste infinie
-                    termes_apres.append(terme_potentiel)
-                    terme_potentiel += raison
-
-                # Générer la liste complète des nombres qui devraient être dans la suite
-                nombres_attendus = []
-                # Ajouter les termes avant dans l'ordre inverse (pour respecter l'ordre croissant/décroissant)
-                nombres_attendus.extend(reversed(termes_avant))
-
-                # Générer tous les nombres entre le début et la fin actuels
-                current = debut_actuel
-                while (est_croissante and current <= fin_actuelle) or (not est_croissante and current >= fin_actuelle):
-                    nombres_attendus.append(current)
-                    current += raison
-
-                # Ajouter les termes après
-                nombres_attendus.extend(termes_apres)
-
-                # Identifier les nombres manquants (tous ceux qui sont attendus mais pas dans la suite)
-                nombres_manquants = [n for n in nombres_attendus if n not in suite]
-
-        return nombres_manquants
-
-    def verifier_completion__(self, suite):
-        """Vérifie si une suite est complète en identifiant les nombres manquants de la suite"""
-        # Si la suite est vide ou n'a qu'un élément, elle ne peut pas être complète
-        if len(suite) <= 1:
+        # S'il n'y a pas de raison candidate, impossible de détecter la complétion
+        if not raisons_candidates:
             return []
 
-        # Pour les suites arithmétiques
-        nombres_manquants = []
+        # La raison la plus fréquente est probablement la bonne
+        from collections import Counter
+        compteur_raisons = Counter(raisons_candidates)
+        raison = compteur_raisons.most_common(1)[0][0]
 
-        # Déterminer la raison de la suite
-        if len(suite) >= 2:
-            # Vérifier si tous les éléments de la suite ont la même raison
-            raisons_constantes = True
-            raison = suite[1] - suite[0]
+        # Vérifier la cohérence avec cette raison
+        # Une suite est valide si elle peut être représentée par a + n*r pour tous les éléments
+        # où a est le premier terme et r est la raison
 
-            for i in range(1, len(suite) - 1):
-                if suite[i + 1] - suite[i] != raison:
-                    raisons_constantes = False
-                    break
+        # Trouver le premier terme théorique de la suite complète
+        premier_terme = suite_triee[0]
+        # Vérifier si on peut reculer encore plus
+        while premier_terme - raison > 0:
+            premier_terme -= raison
 
-            # Si la raison est constante, on peut identifier les nombres manquants
-            if raisons_constantes:
-                # Déterminer le sens de la suite (croissant ou décroissant)
-                est_croissante = raison > 0
+        # Générer tous les termes théoriques de la suite complète
+        termes_theoriques = []
+        terme_courant = premier_terme
+        while terme_courant <= 90:  # Limite supérieure à 90
+            termes_theoriques.append(terme_courant)
+            terme_courant += raison
 
-                # Trouver le début et la fin de la suite complète
-                debut = min(suite)
-                fin = max(suite)
+        # Identifier les termes manquants parmi les termes théoriques
+        nombres_manquants = [terme for terme in termes_theoriques
+                             if terme not in suite_set and
+                             terme > 0 and terme <= 90]  # Assurer que les termes sont entre 1 et 90
 
-                # Générer la liste complète des nombres qui devraient être dans la suite
-                nombres_attendus = []
-                current = debut
-
-                while (est_croissante and current <= fin) or (not est_croissante and current >= fin):
-                    nombres_attendus.append(current)
-                    current += raison
-
-                # Identifier les nombres manquants
-                nombres_manquants = [n for n in nombres_attendus if n not in suite]
-
-                # Vérifier également s'il y a des termes qui précèdent ou suivent la suite
-                # Calculer le terme qui précède le plus petit terme
-                terme_precedent = min(suite) - raison
-                # Pour une suite croissante, vérifier si le terme précédent est positif
-                # Pour une suite décroissante, vérifier si le terme suivant est positif
-                if est_croissante:
-                    if terme_precedent > 0:  # Si nous sommes dans le domaine des nombres positifs
-                        nombres_manquants.append(terme_precedent)
-                else:  # Suite décroissante
-                    terme_suivant = max(suite) - raison  # Pour une suite décroissante, le terme suivant est plus petit
-                    if terme_suivant > 0:  # Si nous sommes dans le domaine des nombres positifs
-                        nombres_manquants.append(terme_suivant)
-
-        return nombres_manquants
+        return sorted(nombres_manquants)
 
     def extraire_numeros(self, ligne, params):
         """Extrait les numéros d'une ligne selon les paramètres"""
@@ -580,7 +513,7 @@ if __name__ == "__main__":
             #'dates': ["05/10/2020", "06/10/2020", "07/10/2020", "08/10/2020"],  # Dates spécifiques
             'types_suites': ["arithmetique", "geometrique"],
             'date_debut': "01/01/2020",
-            'date_fin': "31/12/2020",
+            'date_fin': "26/10/2022",
             'ordre': "decroissant",  # decroissant #croissant
             'min_elements': 4,
             'forcer_min': True,
@@ -590,9 +523,9 @@ if __name__ == "__main__":
             'ordre_lecture': "normal",
             'types_tirage': ["Reveil", "Sika"],  # Filtrer par type de tirage
             'sens_analyse': "les_deux",  # "horizontal", "vertical" ou "les_deux"
-            'pagination': False,
+            'pagination': True,
             'items_par_page': 50,
-            'page': 2
+            'page': 1
         }
 
         # Effectuer l'analyse
