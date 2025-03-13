@@ -280,8 +280,8 @@ def main(config: Dict[str, Any]):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Lottery Analysis Tool")
-    parser.add_argument('--csv_file', type=str, default='../formatted_lottery_results.csv',
-                        help='Path to CSV file (default: formatted_lottery_results.csv)')
+    parser.add_argument('--csv_file', type=str, default='../uploads/formatted_lottery_results.csv',
+                        help='Path to CSV file (default: ../uploads/formatted_lottery_results.csv)')
     parser.add_argument('--date_debut', type=str, help='Start date (dd/mm/yyyy)')
     parser.add_argument('--date_fin', type=str, help='End date (dd/mm/yyyy)')
     parser.add_argument('--type_tirage', type=str, help='Type de Tirage')

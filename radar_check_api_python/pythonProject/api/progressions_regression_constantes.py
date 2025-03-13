@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 import json
 from pathlib import Path
-from pythonProject.myClass.ProgressRegressConstantesClass import ProgressRegressConstantesClass
+from myClass.ProgressRegressConstantesClass import ProgressRegressConstantesClass
 
 app = Flask(__name__)
 CORS(app)

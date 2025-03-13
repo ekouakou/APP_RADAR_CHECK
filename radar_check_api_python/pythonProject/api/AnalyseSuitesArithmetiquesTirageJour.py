@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, Blueprint
 from flask_cors import CORS
-from pythonProject.myClass.SequenceAnalyzer import SequenceAnalyzer
+from myClass.SequenceAnalyzer import SequenceAnalyzer
 import json
 import tempfile
 import os
