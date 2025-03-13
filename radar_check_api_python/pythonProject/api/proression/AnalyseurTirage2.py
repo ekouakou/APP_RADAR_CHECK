@@ -53,7 +53,7 @@ class AnalyseurTirage:
             'dates': [],  # Liste de dates spécifiques à analyser
             'date_debut': None,  # Date de début pour filtrer les résultats
             'date_fin': None,  # Date de fin pour filtrer les résultats
-            'types_suites': ["arithmetique", "geometrique", "diff_croissante", "diff_decroissante"],
+            'types_suites': ["arithmetique", "geometrique", "diff_croissante", "diff_decroissante", "premiers"],
             'ordre': "croissant",  # "croissant" ou "decroissant"
             'min_elements': 3,  # Nombre minimum d'éléments pour une suite valide
             'forcer_min': True,  # Forcer le nombre minimum d'éléments
@@ -162,6 +162,8 @@ class AnalyseurTirage:
             suites_trouvees.extend(self.trouver_suites_diff_variables(numeros, "croissante", params))
         elif type_suite == "diff_decroissante":
             suites_trouvees.extend(self.trouver_suites_diff_variables(numeros, "decroissante", params))
+        elif type_suite == "premiers":
+            suites_trouvees.extend(self.trouver_suites_nombres_premiers(numeros, params))
 
         return suites_trouvees
 
@@ -260,6 +262,52 @@ class AnalyseurTirage:
                             suites.append((suite, raisons))
 
         return suites
+
+    def est_premier(self, n):
+        """Vérifie si un nombre est premier"""
+        if n < 2:
+            return False
+        for i in range(2, int(n ** 0.5) + 1):
+            if n % i == 0:
+                return False
+        return True
+
+    def trouver_suites_nombres_premiers(self, numeros, params):
+        """Trouve les suites constituées de nombres premiers consécutifs"""
+        # Filtrer uniquement les nombres premiers
+        nombres_premiers = [n for n in numeros if self.est_premier(n)]
+
+        # Trier les nombres premiers
+        nombres_premiers.sort()
+
+        suites = []
+
+        # Rechercher des séquences de nombres premiers consécutifs
+        if len(nombres_premiers) >= params['min_elements']:
+            i = 0
+            while i < len(nombres_premiers):
+                suite_courante = [nombres_premiers[i]]
+                # Pour suivre les différences entre nombres premiers consécutifs
+                raisons = []
+
+                j = i + 1
+                while j < len(nombres_premiers):
+                    diff = nombres_premiers[j] - nombres_premiers[i]
+                    suite_courante.append(nombres_premiers[j])
+                    raisons.append(diff)
+                    i = j
+                    j += 1
+
+                    # Vérifier si la suite est assez longue
+                    if len(suite_courante) >= params['min_elements']:
+                        suites.append((suite_courante, raisons))
+                        break
+
+                i += 1
+
+        return suites
+
+
 
     def verifier_completion(self, suite):
         """
@@ -511,7 +559,7 @@ if __name__ == "__main__":
         # Définir les paramètres d'analyse
         parametres = {
             #'dates': ["05/10/2020", "06/10/2020", "07/10/2020", "08/10/2020"],  # Dates spécifiques
-            'types_suites': ["arithmetique", "geometrique"],
+            'types_suites': ["arithmetique", "geometrique", "premiers"],
             'date_debut': "01/01/2020",
             'date_fin': "26/10/2022",
             'ordre': "decroissant",  # decroissant #croissant
