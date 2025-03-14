@@ -289,5 +289,52 @@ if __name__ == "__main__":
         }
     )
 
+    analyze_top = {
+        "file_path": "./uploads/formatted_lottery_results.csv",
+        "types_suites": ["arithmetique", "geometrique", "premiers"],
+        "date_debut": "01/01/2020",
+        "date_fin": "26/10/2022",
+        "ordre": "decroissant",
+        "min_elements": 4,
+        "forcer_min": True,
+        "verifier_completion": True,
+        "respecter_position": False,
+        "source_numeros": "tous",
+        "ordre_lecture": "normal",
+        "types_tirage": ["Reveil", "Sika"],
+        "sens_analyse": "les_deux",
+        "pagination": True,
+        "items_par_page": 50,
+        "page": 1
+    }
+
+    generator.add_endpoint(
+        api_path="/api/suites/analyser",
+        http_method="POST",
+        summary="Télécharger un fichier",
+        description="Endpoint pour télécharger un fichier CSV.",
+        example_params=analyze_top,
+        with_file=True,
+        responses={
+            "200": {
+                "description": "Fichier téléchargé avec succès",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {"type": "boolean"},
+                                "file_path": {"type": "string"}
+                            }
+                        }
+                    }
+                }
+            },
+            "400": {
+                "description": "Aucun fichier trouvé"
+            }
+        }
+    )
+
     # Générer le fichier OpenAPI
     generator.save_spec()

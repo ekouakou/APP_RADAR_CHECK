@@ -307,8 +307,6 @@ class AnalyseurTirage:
 
         return suites
 
-
-
     def verifier_completion(self, suite):
         """
         Vérifie de manière exhaustive si une suite arithmétique est complète

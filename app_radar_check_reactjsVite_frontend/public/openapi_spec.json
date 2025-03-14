@@ -694,6 +694,259 @@
           }
         }
       }
+    },
+    "/api/suites/analyser": {
+      "post": {
+        "summary": "T\u00e9l\u00e9charger un fichier",
+        "description": "Endpoint pour t\u00e9l\u00e9charger un fichier CSV.",
+        "responses": {
+          "200": {
+            "description": "Fichier t\u00e9l\u00e9charg\u00e9 avec succ\u00e8s",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "file_path": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Aucun fichier trouv\u00e9"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV \u00e0 analyser"
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "types_suites": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour types_suites",
+                    "example": [
+                      "arithmetique",
+                      "geometrique",
+                      "premiers"
+                    ]
+                  },
+                  "date_debut": {
+                    "type": "string",
+                    "description": "Description pour date_debut",
+                    "example": "01/01/2020"
+                  },
+                  "date_fin": {
+                    "type": "string",
+                    "description": "Description pour date_fin",
+                    "example": "26/10/2022"
+                  },
+                  "ordre": {
+                    "type": "string",
+                    "description": "Description pour ordre",
+                    "example": "decroissant"
+                  },
+                  "min_elements": {
+                    "type": "integer",
+                    "description": "Description pour min_elements",
+                    "example": 4,
+                    "default": 4
+                  },
+                  "forcer_min": {
+                    "type": "boolean",
+                    "description": "Description pour forcer_min",
+                    "example": true,
+                    "default": true
+                  },
+                  "verifier_completion": {
+                    "type": "boolean",
+                    "description": "Description pour verifier_completion",
+                    "example": true,
+                    "default": true
+                  },
+                  "respecter_position": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_position",
+                    "example": false,
+                    "default": false
+                  },
+                  "source_numeros": {
+                    "type": "string",
+                    "description": "Description pour source_numeros",
+                    "example": "tous"
+                  },
+                  "ordre_lecture": {
+                    "type": "string",
+                    "description": "Description pour ordre_lecture",
+                    "example": "normal"
+                  },
+                  "types_tirage": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour types_tirage",
+                    "example": [
+                      "Reveil",
+                      "Sika"
+                    ]
+                  },
+                  "sens_analyse": {
+                    "type": "string",
+                    "description": "Description pour sens_analyse",
+                    "example": "les_deux"
+                  },
+                  "pagination": {
+                    "type": "boolean",
+                    "description": "Description pour pagination",
+                    "example": true,
+                    "default": true
+                  },
+                  "items_par_page": {
+                    "type": "integer",
+                    "description": "Description pour items_par_page",
+                    "example": 50,
+                    "default": 50
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Description pour page",
+                    "example": 1,
+                    "default": 1
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "types_suites": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour types_suites",
+                    "example": [
+                      "arithmetique",
+                      "geometrique",
+                      "premiers"
+                    ]
+                  },
+                  "date_debut": {
+                    "type": "string",
+                    "description": "Description pour date_debut",
+                    "example": "01/01/2020"
+                  },
+                  "date_fin": {
+                    "type": "string",
+                    "description": "Description pour date_fin",
+                    "example": "26/10/2022"
+                  },
+                  "ordre": {
+                    "type": "string",
+                    "description": "Description pour ordre",
+                    "example": "decroissant"
+                  },
+                  "min_elements": {
+                    "type": "integer",
+                    "description": "Description pour min_elements",
+                    "example": 4,
+                    "default": 4
+                  },
+                  "forcer_min": {
+                    "type": "boolean",
+                    "description": "Description pour forcer_min",
+                    "example": true,
+                    "default": true
+                  },
+                  "verifier_completion": {
+                    "type": "boolean",
+                    "description": "Description pour verifier_completion",
+                    "example": true,
+                    "default": true
+                  },
+                  "respecter_position": {
+                    "type": "boolean",
+                    "description": "Description pour respecter_position",
+                    "example": false,
+                    "default": false
+                  },
+                  "source_numeros": {
+                    "type": "string",
+                    "description": "Description pour source_numeros",
+                    "example": "tous"
+                  },
+                  "ordre_lecture": {
+                    "type": "string",
+                    "description": "Description pour ordre_lecture",
+                    "example": "normal"
+                  },
+                  "types_tirage": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour types_tirage",
+                    "example": [
+                      "Reveil",
+                      "Sika"
+                    ]
+                  },
+                  "sens_analyse": {
+                    "type": "string",
+                    "description": "Description pour sens_analyse",
+                    "example": "les_deux"
+                  },
+                  "pagination": {
+                    "type": "boolean",
+                    "description": "Description pour pagination",
+                    "example": true,
+                    "default": true
+                  },
+                  "items_par_page": {
+                    "type": "integer",
+                    "description": "Description pour items_par_page",
+                    "example": 50,
+                    "default": 50
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Description pour page",
+                    "example": 1,
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
