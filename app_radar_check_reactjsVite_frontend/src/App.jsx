@@ -29,6 +29,8 @@ import BookusSection from "./AppComponents/BookusSection";
 import SwaggerUIComponent from "./swagger/SwaggerUIComponent";
 import SuitesArithmetiquesVisualisation from "./dataAnalyse/SuitesArithmetiquesVisualisation"
 import Dashborad from "./dataAnalyse/Dashborad"
+import LotteryDashboard from "./dataAnalyse/LotteryDashboard"
+
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -43,6 +45,8 @@ function App() {
             <Route path="/medecinliste" element={<SwaggerUIComponent />} />
             <Route path="/medecinliste2" element={<SuitesArithmetiquesVisualisation />} />
             <Route path="/dashborad" element={<Dashborad />} />
+            <Route path="/lotteryDashboard" element={<LotteryDashboard />} />
+
           </Routes>
         </main>
       </>

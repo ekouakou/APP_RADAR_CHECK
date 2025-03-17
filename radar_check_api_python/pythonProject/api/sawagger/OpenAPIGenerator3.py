@@ -12,7 +12,7 @@ class OpenAPIGenerator:
             },
             "servers": [
                 {
-                    "url": "http://127.0.0.1:5000",
+                    "url": "http://127.0.0.1:5002",
                     "description": "Serveur local de développement"
                 }
             ],
@@ -289,7 +289,11 @@ if __name__ == "__main__":
         }
     )
 
-    analyze_top = {
+
+
+    # ============================== All Suite Finder ==============================
+
+    allSuiteFinder = {
         "file_path": "./uploads/formatted_lottery_results.csv",
         "types_suites": ["arithmetique", "geometrique", "premiers"],
         "date_debut": "01/01/2020",
@@ -309,11 +313,101 @@ if __name__ == "__main__":
     }
 
     generator.add_endpoint(
-        api_path="/api/suites/analyser",
+        api_path="/allSuiteFinder",
         http_method="POST",
         summary="Télécharger un fichier",
         description="Endpoint pour télécharger un fichier CSV.",
-        example_params=analyze_top,
+        example_params=allSuiteFinder,
+        with_file=True,
+        responses={
+            "200": {
+                "description": "Fichier téléchargé avec succès",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {"type": "boolean"},
+                                "file_path": {"type": "string"}
+                            }
+                        }
+                    }
+                }
+            },
+            "400": {
+                "description": "Aucun fichier trouvé"
+            }
+        }
+    )
+
+
+    # ============================== SIMILARITE ER RESEMBLANCE ==============================
+
+    allSimilarDrawsFinder = {
+          "file_path": "./uploads/formatted_lottery_results.csv",
+          "action": "similar-draws",
+          "draw_line": "01/01/2020;Lundi;janvier 2020;Premier;12;34;56;78;90;23;45;67;89;01",
+          "similarity_threshold": 0.4,
+          "search_mode": "numbers",
+          "respect_positions": "true",
+          "consider_proximity": "true",
+          "proximity_threshold": "2",
+          "items_per_page": 10,
+          "page": 2
+        }
+
+
+    generator.add_endpoint(
+        api_path="/allSimilarDrawsAndCombinationFinder",
+        http_method="POST",
+        summary="Télécharger un fichier",
+        description="Endpoint pour télécharger un fichier CSV.",
+        example_params=allSimilarDrawsFinder,
+        with_file=True,
+        responses={
+            "200": {
+                "description": "Fichier téléchargé avec succès",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "success": {"type": "boolean"},
+                                "file_path": {"type": "string"}
+                            }
+                        }
+                    }
+                }
+            },
+            "400": {
+                "description": "Aucun fichier trouvé"
+            }
+        }
+    )
+
+
+    # =========================== allSimilarCombinationFinder  ===========================
+
+    allSimilarCombinationFinder = {
+      "file_path": "./uploads/formatted_lottery_results.csv",
+      "action": "patterns",
+      "start_date": "01/01/2020",
+      "end_date": "31/05/2021",
+      "search_mode": "both",
+      "respect_positions": "true",
+      "group_sizes": [1,2,3,4,5],
+      "pagination": "true",
+      "tirage_types":["Reveil"],
+      "items_per_page": 10,
+      "page": 1
+    }
+
+    generator.add_endpoint(
+        api_path="/allSimilarCombinationFinder",
+        http_method="POST",
+        summary="Télécharger un fichier",
+        description="Endpoint pour télécharger un fichier CSV.",
+        example_params=allSimilarCombinationFinder,
         with_file=True,
         responses={
             "200": {

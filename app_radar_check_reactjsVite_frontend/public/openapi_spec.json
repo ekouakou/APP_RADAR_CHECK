@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:5000",
+      "url": "http://127.0.0.1:5002",
       "description": "Serveur local de d\u00e9veloppement"
     }
   ],
@@ -695,7 +695,7 @@
         }
       }
     },
-    "/api/suites/analyser": {
+    "/allSuiteFinder": {
       "post": {
         "summary": "T\u00e9l\u00e9charger un fichier",
         "description": "Endpoint pour t\u00e9l\u00e9charger un fichier CSV.",
@@ -934,6 +934,358 @@
                     "description": "Description pour items_par_page",
                     "example": 50,
                     "default": 50
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Description pour page",
+                    "example": 1,
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/allSimilarDrawsAndCombinationFinder": {
+      "post": {
+        "summary": "T\u00e9l\u00e9charger un fichier",
+        "description": "Endpoint pour t\u00e9l\u00e9charger un fichier CSV.",
+        "responses": {
+          "200": {
+            "description": "Fichier t\u00e9l\u00e9charg\u00e9 avec succ\u00e8s",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "file_path": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Aucun fichier trouv\u00e9"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV \u00e0 analyser"
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "Description pour action",
+                    "example": "similar-draws"
+                  },
+                  "draw_line": {
+                    "type": "string",
+                    "description": "Description pour draw_line",
+                    "example": "01/01/2020;Lundi;janvier 2020;Premier;12;34;56;78;90;23;45;67;89;01"
+                  },
+                  "similarity_threshold": {
+                    "type": "string",
+                    "description": "Description pour similarity_threshold",
+                    "example": 0.4
+                  },
+                  "search_mode": {
+                    "type": "string",
+                    "description": "Description pour search_mode",
+                    "example": "numbers"
+                  },
+                  "respect_positions": {
+                    "type": "string",
+                    "description": "Description pour respect_positions",
+                    "example": "true"
+                  },
+                  "consider_proximity": {
+                    "type": "string",
+                    "description": "Description pour consider_proximity",
+                    "example": "true"
+                  },
+                  "proximity_threshold": {
+                    "type": "string",
+                    "description": "Description pour proximity_threshold",
+                    "example": "2"
+                  },
+                  "items_per_page": {
+                    "type": "integer",
+                    "description": "Description pour items_per_page",
+                    "example": 10,
+                    "default": 10
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Description pour page",
+                    "example": 2,
+                    "default": 2
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "Description pour action",
+                    "example": "similar-draws"
+                  },
+                  "draw_line": {
+                    "type": "string",
+                    "description": "Description pour draw_line",
+                    "example": "01/01/2020;Lundi;janvier 2020;Premier;12;34;56;78;90;23;45;67;89;01"
+                  },
+                  "similarity_threshold": {
+                    "type": "string",
+                    "description": "Description pour similarity_threshold",
+                    "example": 0.4
+                  },
+                  "search_mode": {
+                    "type": "string",
+                    "description": "Description pour search_mode",
+                    "example": "numbers"
+                  },
+                  "respect_positions": {
+                    "type": "string",
+                    "description": "Description pour respect_positions",
+                    "example": "true"
+                  },
+                  "consider_proximity": {
+                    "type": "string",
+                    "description": "Description pour consider_proximity",
+                    "example": "true"
+                  },
+                  "proximity_threshold": {
+                    "type": "string",
+                    "description": "Description pour proximity_threshold",
+                    "example": "2"
+                  },
+                  "items_per_page": {
+                    "type": "integer",
+                    "description": "Description pour items_per_page",
+                    "example": 10,
+                    "default": 10
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Description pour page",
+                    "example": 2,
+                    "default": 2
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/allSimilarCombinationFinder": {
+      "post": {
+        "summary": "T\u00e9l\u00e9charger un fichier",
+        "description": "Endpoint pour t\u00e9l\u00e9charger un fichier CSV.",
+        "responses": {
+          "200": {
+            "description": "Fichier t\u00e9l\u00e9charg\u00e9 avec succ\u00e8s",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "file_path": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Aucun fichier trouv\u00e9"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Fichier CSV \u00e0 analyser"
+                  },
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "Description pour action",
+                    "example": "patterns"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Description pour start_date",
+                    "example": "01/01/2020"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "Description pour end_date",
+                    "example": "31/05/2021"
+                  },
+                  "search_mode": {
+                    "type": "string",
+                    "description": "Description pour search_mode",
+                    "example": "both"
+                  },
+                  "respect_positions": {
+                    "type": "string",
+                    "description": "Description pour respect_positions",
+                    "example": "true"
+                  },
+                  "group_sizes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour group_sizes",
+                    "example": [
+                      1,
+                      2,
+                      3,
+                      4,
+                      5
+                    ]
+                  },
+                  "pagination": {
+                    "type": "string",
+                    "description": "Description pour pagination",
+                    "example": "true"
+                  },
+                  "tirage_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour tirage_types",
+                    "example": [
+                      "Reveil"
+                    ]
+                  },
+                  "items_per_page": {
+                    "type": "integer",
+                    "description": "Description pour items_per_page",
+                    "example": 10,
+                    "default": 10
+                  },
+                  "page": {
+                    "type": "integer",
+                    "description": "Description pour page",
+                    "example": 1,
+                    "default": 1
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "description": "Description pour file_path",
+                    "example": "./uploads/formatted_lottery_results.csv"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "Description pour action",
+                    "example": "patterns"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Description pour start_date",
+                    "example": "01/01/2020"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "Description pour end_date",
+                    "example": "31/05/2021"
+                  },
+                  "search_mode": {
+                    "type": "string",
+                    "description": "Description pour search_mode",
+                    "example": "both"
+                  },
+                  "respect_positions": {
+                    "type": "string",
+                    "description": "Description pour respect_positions",
+                    "example": "true"
+                  },
+                  "group_sizes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour group_sizes",
+                    "example": [
+                      1,
+                      2,
+                      3,
+                      4,
+                      5
+                    ]
+                  },
+                  "pagination": {
+                    "type": "string",
+                    "description": "Description pour pagination",
+                    "example": "true"
+                  },
+                  "tirage_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Description pour tirage_types",
+                    "example": [
+                      "Reveil"
+                    ]
+                  },
+                  "items_per_page": {
+                    "type": "integer",
+                    "description": "Description pour items_per_page",
+                    "example": 10,
+                    "default": 10
                   },
                   "page": {
                     "type": "integer",
