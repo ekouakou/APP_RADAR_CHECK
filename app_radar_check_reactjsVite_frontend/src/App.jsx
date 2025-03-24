@@ -31,6 +31,9 @@ import SuitesArithmetiquesVisualisation from "./dataAnalyse/SuitesArithmetiquesV
 import Dashborad from "./dataAnalyse/Dashborad"
 import LotteryDashboard from "./dataAnalyse/LotteryDashboard"
 
+import _TableauDeBordTiragesSimilarite from "./dataAnalyse/_TableauDeBordTiragesSimilarite"
+
+
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -45,6 +48,7 @@ function App() {
             <Route path="/medecinliste" element={<SwaggerUIComponent />} />
             <Route path="/medecinliste2" element={<SuitesArithmetiquesVisualisation />} />
             <Route path="/dashborad" element={<Dashborad />} />
+            <Route path="/_TableauDeBordTiragesSimilarite" element={<_TableauDeBordTiragesSimilarite />} />
             <Route path="/lotteryDashboard" element={<LotteryDashboard />} />
 
           </Routes>

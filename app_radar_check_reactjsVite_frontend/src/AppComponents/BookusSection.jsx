@@ -1,4 +1,6 @@
 import React from "react";
+import SwaggerUIComponent from "../swagger/SwaggerUIComponent";
+
 
 const BookusSection = () => {
   return (
@@ -64,6 +66,8 @@ const BookusSection = () => {
               className="faq-info aos aos-init aos-animate"
               data-aos="fade-up"
             >
+
+<SwaggerUIComponent />
               <div className="accordion" id="faq-details">
                 {/* FAQ Item */}
                 <div className="accordion-item">
