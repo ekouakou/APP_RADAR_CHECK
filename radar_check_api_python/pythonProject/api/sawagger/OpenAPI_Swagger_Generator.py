@@ -343,6 +343,21 @@ if __name__ == "__main__":
 
     # ============================== SIMILARITE ER RESEMBLANCE ==============================
 
+    """
+    L'API /allSimilarDrawsAndCombinationFinder permet d'analyser les résultats de loterie et de trouver des tirages similaires en fonction de plusieurs critères définis par l'utilisateur.
+    
+    ["file_path", "string", "Chemin du fichier CSV contenant les résultats formatés de la loterie."],
+    ["action", "string", 'Action à effectuer, ici "similar-draws", ce qui signifie rechercher des tirages similaires.'],
+    ["draw_line", "string", "Ligne représentant un tirage spécifique avec les informations formatées (date, jour, mois, numéros tirés)."],
+    ["similarity_threshold", "float", "Seuil de similarité minimum entre les tirages pour être considéré comme correspondant. Exemple : 0.4 (40%)."],
+    ["search_mode", "string", 'Mode de recherche : "numbers" signifie que la recherche est basée uniquement sur les numéros tirés.'],
+    ["respect_positions", "string", '"true" signifie que l’API prendra en compte la position des numéros dans le tirage pour calculer la similarité.'],
+    ["consider_proximity", "string", '"true" signifie que l’API prendra en compte la proximité des numéros pour évaluer la similarité.'],
+    ["proximity_threshold", "string", "Valeur définissant le seuil de proximité acceptable entre les numéros similaires. Ici, 2 signifie qu’un numéro sera considéré similaire à un autre s’il est à ±2."],
+    ["items_per_page", "integer", "Nombre d'éléments à afficher par page dans la réponse."],
+    ["page", "integer", "Numéro de la page demandée pour la pagination des résultats."]
+    """
+
     allSimilarDrawsFinder = {
           "file_path": "./uploads/formatted_lottery_results.csv",
           "action": "similar-draws",
@@ -432,3 +447,13 @@ if __name__ == "__main__":
 
     # Générer le fichier OpenAPI
     generator.save_spec()
+
+    """
+    {
+        "file_path": "./uploads/formatted_lottery_results.csv",
+        "date_start": "01/01/2021",
+        "date_end": "08/02/2025",
+        "mode": "commencement",
+        "group_by_draw": "false"
+    }
+    """

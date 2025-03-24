@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 import os
 import tempfile
 import traceback
@@ -10,7 +10,8 @@ import json
 # Assurez-vous que le fichier contenant cette classe est dans le même répertoire
 from myClass._TerminasonAnalyzer import TerminaisonAnalyzer  # Supposant que votre classe est dans lottery_analyzer.py
 
-app = Flask(__name__)
+# Créer le Blueprint
+api = Blueprint('analyse_terminaison_api', __name__)
 
 
 # Fonction utilitaire pour formater les résultats de patterns pour JSON
@@ -41,7 +42,7 @@ def format_patterns_for_json(patterns_results, respect_positions):
     return formatted
 
 
-@app.route('/api/lottery/analyze', methods=['POST'])
+@api.route('/lottery/analyze', methods=['POST'])  # Changé de app.route à api.route et supprimé /api/
 def analyze_lottery():
     """Point d'entrée API pour l'analyse des tirages de loterie."""
 
@@ -173,7 +174,7 @@ def analyze_lottery():
         }), 500
 
 
-@app.route('/api/lottery/save', methods=['POST'])
+@api.route('/lottery/save', methods=['POST'])  # Changé de app.route à api.route et supprimé /api/
 def save_lottery_results():
     """Point d'entrée API pour sauvegarder les résultats d'analyse."""
 
@@ -235,7 +236,7 @@ def save_lottery_results():
         }), 500
 
 
-@app.route('/api/lottery/display', methods=['POST'])
+@api.route('/lottery/display', methods=['POST'])  # Changé de app.route à api.route et supprimé /api/
 def display_lottery_results():
     """Point d'entrée API pour afficher les résultats d'analyse (retourne les résultats au format JSON)."""
 
@@ -322,7 +323,3 @@ def convert_group_data_to_json(data):
         json_data["motifs"][str(list(motif))] = count
 
     return json_data
-
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5003)

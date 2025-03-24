@@ -1,10 +1,9 @@
+import os
+import tempfile
 from flask import Flask, request, jsonify, Blueprint
 from flask_cors import CORS
 from myClass._AnalyseurTirage import AnalyseurTirage
 from myClass._LotoAnalyzer import LotoAnalyzer
-
-import tempfile
-import os
 
 app = Flask(__name__)
 CORS(app)
@@ -67,13 +66,13 @@ def analyser_tirages():
             return jsonify({"error": "Aucun fichier fourni"}), 400
 
         # Vérifier si un fichier CSV a été spécifié
-        #if 'fichier' not in data:
+        # if 'fichier' not in data:
         #    return jsonify({"error": "Le chemin du fichier CSV est requis"}), 400
 
-        #fichier = data['fichier']
+        # fichier = data['fichier']
 
         # Vérifier si le fichier existe
-        #if not os.path.exists(fichier):
+        # if not os.path.exists(fichier):
         #    return jsonify({"error": f"Le fichier {fichier} n'existe pas"}), 404
 
         # Initialiser l'analyseur
@@ -238,6 +237,8 @@ def format_patterns_for_json2(patterns, respect_positions=True):
             formatted_results["summary"]["total_groups"] += 1
 
     return formatted_results
+
+
 @api.route('/allSimilarDrawsAndCombinationFinder', methods=['POST'])
 def analyze_lottery():
     """Point d'entrée API pour l'analyse des tirages de loto."""
